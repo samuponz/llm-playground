@@ -1,0 +1,14 @@
+# Adds NVIDIA GPU access to the ollama service.
+# Used on top of docker-compose.yml when .env contains:
+#   COMPOSE_FILE=docker-compose.yml:docker-compose.gpu.yml
+# Needs the NVIDIA driver and NVIDIA Container Toolkit on the host.
+
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

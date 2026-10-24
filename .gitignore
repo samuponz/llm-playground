@@ -1,0 +1,18 @@
+# Local settings (copy of .env.example) - never commit
+.env
+
+# Python caches
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Saved runs can contain anything typed in the chat
+traces/
+
+# Model files never go in git (they live in the ollama_models Docker volume)
+*.gguf
+models/
+
+# Personal editor / Claude Code settings
+.vscode/
+.claude/settings.local.json

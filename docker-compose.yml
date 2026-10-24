@@ -1,0 +1,43 @@
+# Two containers:
+#   ollama - runs the models and serves them over HTTP (port 11434)
+#   app    - our Python code, which talks to ollama
+#
+# GPU access lives in docker-compose.gpu.yml, switched on through COMPOSE_FILE in .env.
+# Without .env everything still works, on CPU only.
+
+services:
+  ollama:
+    image: ollama/ollama:${OLLAMA_VERSION:-0.40.11}
+    ports:
+      # 127.0.0.1 = reachable only from this laptop, not from the local network
+      - "127.0.0.1:11434:11434"
+    volumes:
+      # Downloaded models are kept in a named volume, so they survive rebuilds
+      - ollama_models:/root/.ollama
+    environment:
+      # The OpenAI-style API has no "context size" option, so it is set on the server
+      OLLAMA_CONTEXT_LENGTH: ${LLM_CONTEXT_SIZE:-4096}
+      # Only one model in memory at a time (16 GB RAM, 2 GB VRAM)
+      OLLAMA_MAX_LOADED_MODELS: 1
+    restart: unless-stopped
+
+  app:
+    build: .
+    # Run as your own user, so files the app creates (e.g. traces) are not owned by root
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    volumes:
+      # The project folder is mounted, so code changes need no rebuild
+      - .:/app
+    environment:
+      LLM_BASE_URL: ${LLM_BASE_URL:-http://ollama:11434/v1}
+      LLM_MODEL: ${LLM_MODEL:-qwen3:4b-q4_K_M}
+      LLM_CONTEXT_SIZE: ${LLM_CONTEXT_SIZE:-4096}
+      LLM_THINKING: ${LLM_THINKING:-false}
+    depends_on:
+      - ollama
+    # Keep a terminal attached, needed for the interactive chat
+    stdin_open: true
+    tty: true
+
+volumes:
+  ollama_models:
