@@ -49,3 +49,4 @@ docker compose exec ollama ollama ps    # PROCESSOR column: how much runs on GPU
 
 - [docs/cheatsheets/](docs/cheatsheets/README.md): tested terminal commands for Docker, Ollama, its HTTP API, the GPU and git
 - [docs/01-setup.md](docs/01-setup.md): what the containers do, and GPU vs CPU
+- [docs/concepts/containers.md](docs/concepts/containers.md): how containers work (namespaces, cgroups, images)
