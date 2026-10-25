@@ -19,6 +19,8 @@ services:
       OLLAMA_CONTEXT_LENGTH: ${LLM_CONTEXT_SIZE:-4096}
       # Only one model in memory at a time (16 GB RAM, 2 GB VRAM)
       OLLAMA_MAX_LOADED_MODELS: 1
+      # Local models only: no ollama.com cloud models, no background requests to them
+      OLLAMA_NO_CLOUD: "true"
     restart: unless-stopped
 
   app:
