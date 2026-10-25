@@ -79,4 +79,9 @@ docker compose run --rm -e LLM_MODEL=qwen3:1.7b app
 Chat a few turns and watch **read** grow; type `/context`. Then turn thinking on
 (`-e LLM_THINKING=true`) and compare **wrote**.
 
-Next question: what happens when the window is full? (Experiment 002.)
+## When the window is full
+
+The server silently drops the oldest part of the conversation, and the model doesn't
+notice: see [experiment 002](experiments/002-context-overflow.md). The chat detects it
+from the numbers and warns with ✂ (`read` went down, or `read + wrote` exceeded the
+window), until `/clear`.

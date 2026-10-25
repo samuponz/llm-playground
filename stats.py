@@ -67,6 +67,25 @@ def context_report(stats, context_size, messages):
     ])
 
 
+def cut_warning(previous, current, context_size, already_cut=False):
+    """Detect when the server dropped part of the conversation, otherwise None.
+
+    Our history only grows, so the model should read more each turn. Two signs of a cut:
+    - read went down: the server dropped old messages before reading the prompt;
+    - read + wrote exceeded the window: it dropped old tokens while writing.
+    Once cut, the history stays too long, so every later turn is cut too (until /clear).
+    """
+    if previous is not None and current.read < previous.read:
+        return (f"✂ the server cut the conversation: it read {current.read} tokens, "
+                f"fewer than last turn ({previous.read}). The oldest messages are gone for the model.")
+    if context_used(current) > context_size:
+        return (f"✂ the window overflowed while writing ({context_used(current)}/{context_size}): "
+                f"the server dropped the oldest tokens to continue.")
+    if already_cut:
+        return "✂ still cut: the model only sees the most recent part of the chat. /clear to start over."
+    return None
+
+
 def context_warning(stats, context_size):
     """A warning when the window is nearly full, otherwise None."""
     fraction = context_fraction(stats, context_size)

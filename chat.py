@@ -16,7 +16,7 @@ import time
 from openai import APIConnectionError, NotFoundError, OpenAI
 
 import config
-from stats import TurnStats, context_report, context_warning, usage_line
+from stats import TurnStats, context_report, context_warning, cut_warning, usage_line
 
 GREY = "\033[90m"  # terminal colour codes, used to show thinking text in grey
 RESET = "\033[0m"
@@ -90,6 +90,7 @@ def main():
 
     messages = []  # the whole memory of the conversation
     last_stats = None  # numbers from the last answered request, for /context
+    was_cut = False  # has the server already dropped part of this conversation?
 
     while True:
         try:
@@ -105,6 +106,7 @@ def main():
         if text == "/clear":
             messages.clear()
             last_stats = None  # the numbers described a history that no longer exists
+            was_cut = False
             print("(history cleared: the model now knows nothing about this chat)")
             continue
         if text == "/history":
@@ -115,6 +117,7 @@ def main():
             continue
 
         messages.append({"role": "user", "content": text})
+        previous_stats = last_stats
         try:
             answer, last_stats = ask(messages)
         except KeyboardInterrupt:
@@ -135,7 +138,9 @@ def main():
         messages.append({"role": "assistant", "content": answer})
 
         print(GREY + usage_line(last_stats, config.CONTEXT_SIZE) + RESET)
-        warning = context_warning(last_stats, config.CONTEXT_SIZE)
+        cut = cut_warning(previous_stats, last_stats, config.CONTEXT_SIZE, was_cut)
+        was_cut = was_cut or cut is not None
+        warning = cut or context_warning(last_stats, config.CONTEXT_SIZE)
         if warning:
             print(warning)
 

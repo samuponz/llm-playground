@@ -6,6 +6,7 @@ source, with what each one shows. They are the evidence behind the concept pages
 | # | Experiment | Shows |
 |---|---|---|
 | [001](001-what-a-model-knows.md) | What a model knows (and makes up) | the model can't see its environment, can't look inside itself, and fills gaps in its memory with plausible inventions |
+| [002](002-context-overflow.md) | What happens when the context window is full | the server silently drops the oldest messages; the model doesn't notice; a smaller window is faster |
 
 ## How each experiment is logged
 
