@@ -35,6 +35,7 @@ services:
       LLM_MODEL: ${LLM_MODEL:-qwen3:4b-q4_K_M}
       LLM_CONTEXT_SIZE: ${LLM_CONTEXT_SIZE:-4096}
       LLM_THINKING: ${LLM_THINKING:-false}
+      LLM_TRACE: ${LLM_TRACE:-true}
     depends_on:
       - ollama
     # Keep a terminal attached, needed for the interactive chat

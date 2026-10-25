@@ -8,8 +8,8 @@ Side questions that come up go to [to-explore.md](to-explore.md).
 | 0 | Host setup: Docker Engine, NVIDIA Container Toolkit, git and a deploy key | ✅ |
 | 1 | Containers and models: `ollama` + `app` services, GPU check, qwen3 models | ✅ |
 | 2 | Chat loop that keeps history (`chat.py`): the model has no memory | ✅ |
-| **3** | **Make the internals visible** | 3a ✅ 3b ✅, 3c next |
-| 4 | Core concepts, hands-on | |
+| 3 | Make the internals visible: usage line, `/context`, overflow detection, traces | ✅ |
+| **4** | **Core concepts, hands-on** | next |
 | 5 | Tests and GitHub Actions | |
 | 6 | Terminal lab dashboard | |
 | 7 | Knowledge base: RAG and alternatives, measured | |

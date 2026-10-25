@@ -26,3 +26,6 @@ CONTEXT_SIZE = int(os.environ.get("LLM_CONTEXT_SIZE", "4096"))
 
 # Qwen3 "thinking": the model writes hidden reasoning before answering (slower)
 THINKING = env_bool("LLM_THINKING", False)
+
+# Save each chat session to traces/ (everything you type is recorded there)
+TRACE = env_bool("LLM_TRACE", True)

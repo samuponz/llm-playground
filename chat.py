@@ -17,6 +17,7 @@ from openai import APIConnectionError, NotFoundError, OpenAI
 
 import config
 from stats import TurnStats, context_report, context_warning, cut_warning, usage_line
+from tracing import NoTrace, Trace
 
 GREY = "\033[90m"  # terminal colour codes, used to show thinking text in grey
 RESET = "\033[0m"
@@ -28,7 +29,7 @@ client = OpenAI(base_url=config.BASE_URL, api_key="ollama")
 def ask(messages):
     """Send the whole conversation and print the answer as it streams in.
 
-    Returns the answer text and the turn's numbers (a TurnStats).
+    Returns the answer text, the thinking text ("" when off) and the turn's numbers.
     """
     # Thinking is on by default in Qwen3; "none" turns it off
     options = {} if config.THINKING else {"reasoning_effort": "none"}
@@ -42,6 +43,7 @@ def ask(messages):
     )
 
     answer = ""
+    thinking = ""
     in_thinking = False
     first_at = None
     usage = None
@@ -62,6 +64,7 @@ def ask(messages):
                 print(GREY, end="")
                 in_thinking = True
             print(reasoning, end="", flush=True)
+            thinking += reasoning
 
         if delta.content:
             if in_thinking:
@@ -80,13 +83,19 @@ def ask(messages):
         first_token_s=first_at - sent_at,
         writing_s=done_at - first_at,
     )
-    return answer, stats
+    return answer, thinking, stats
 
 
 def main():
     thinking = "on" if config.THINKING else "off"
     print(f"Chatting with {config.MODEL} (thinking {thinking}).")
     print("Commands: /history  /context  /clear  /bye")
+
+    settings = {"model": config.MODEL, "base_url": config.BASE_URL,
+                "context_size": config.CONTEXT_SIZE, "thinking_enabled": config.THINKING}
+    trace = Trace(settings) if config.TRACE else NoTrace()
+    if trace.path:
+        print(f"Saving this session to {trace.path}")
 
     messages = []  # the whole memory of the conversation
     last_stats = None  # numbers from the last answered request, for /context
@@ -107,6 +116,7 @@ def main():
             messages.clear()
             last_stats = None  # the numbers described a history that no longer exists
             was_cut = False
+            trace.write("clear")
             print("(history cleared: the model now knows nothing about this chat)")
             continue
         if text == "/history":
@@ -117,22 +127,26 @@ def main():
             continue
 
         messages.append({"role": "user", "content": text})
+        sent = list(messages)  # a copy: exactly what this request sends
         previous_stats = last_stats
         try:
-            answer, last_stats = ask(messages)
+            answer, thinking, last_stats = ask(messages)
         except KeyboardInterrupt:
             print(RESET + "\n(answer interrupted)")
             messages.pop()  # forget the unanswered question
+            trace.write("interrupted", question=text)
             continue
         except APIConnectionError:
             print(f"Cannot reach the model server at {config.BASE_URL}.")
             print("Is it running?  docker compose up -d ollama")
             messages.pop()
+            trace.write("error", error="connection", question=text)
             continue
         except NotFoundError:
             print(f"Model {config.MODEL} not found. Download it:")
             print(f"  docker compose exec ollama ollama pull {config.MODEL}")
             messages.pop()
+            trace.write("error", error="model not found", question=text)
             continue
 
         messages.append({"role": "assistant", "content": answer})
@@ -143,6 +157,9 @@ def main():
         warning = cut or context_warning(last_stats, config.CONTEXT_SIZE)
         if warning:
             print(warning)
+        trace.turn(sent, answer, thinking, last_stats, warning)
+
+    trace.write("session_end", turns=len([m for m in messages if m["role"] == "assistant"]))
 
 
 if __name__ == "__main__":

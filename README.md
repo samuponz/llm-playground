@@ -3,8 +3,9 @@
 Learn how LLM apps work underneath by building each piece by hand, with small models
 running locally in [Ollama](https://ollama.com). Everything runs in Docker.
 
-Status: step 3 of the [roadmap](docs/roadmap.md): the chat shows tokens, speed and
-context usage. Next: the context overflow experiment and traces.
+Status: step 3 of the [roadmap](docs/roadmap.md) done: the chat shows tokens, speed and
+context usage, warns when the context overflows, and records sessions. Next: step 4,
+core concepts (tokens, KV cache, sampling, quantization).
 
 ## What you need
 
@@ -48,7 +49,8 @@ docker compose run --rm -e LLM_THINKING=true app         # show the model's thin
 After each answer the chat shows tokens read and written, speed, and how full the
 context window is. Inside the chat: `/history` shows exactly what is sent to the model,
 `/context` shows the context window, `/clear` forgets the conversation, `/bye` (or
-Ctrl+D) quits.
+Ctrl+D) quits. Each session is saved to `traces/` (not committed; turn off with
+`LLM_TRACE=false`): see [docs/traces.md](docs/traces.md).
 
 ## Useful commands
 
@@ -66,6 +68,7 @@ Ctrl+D) quits.
 - [docs/01-setup.md](docs/01-setup.md): what the containers do, and GPU vs CPU
 - [docs/02-chat-history.md](docs/02-chat-history.md): the model has no memory; the program resends the history
 - [docs/03-tokens-and-context.md](docs/03-tokens-and-context.md): tokens, the context window, reading vs writing speed
+- [docs/traces.md](docs/traces.md): the format of recorded chat sessions
 - [docs/concepts/containers.md](docs/concepts/containers.md): how containers work (namespaces, cgroups, images)
 - [docs/concepts/ollama.md](docs/concepts/ollama.md): how Ollama works (server and clients, model files, local vs cloud, security)
 - [docs/experiments/](docs/experiments/README.md): real conversations, fact-checked: what models know and make up
