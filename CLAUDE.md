@@ -77,6 +77,7 @@ The project lives in a GitHub repository.
 
 ## Out of scope for now
 
-- No web UI yet (planned later for visualisations).
+- The plan and step order live in `docs/roadmap.md`. Follow it; propose changes there.
+- No web UI for now: interfaces are terminal-based (step 6 is a terminal dashboard). JavaScript visualisations come later, for sharing.
 - Tool calling: later, after chat, tokens and thinking are clear.
 - No fine-tuning, no cloud APIs unless I ask.

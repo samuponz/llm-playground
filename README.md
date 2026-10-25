@@ -59,6 +59,8 @@ the conversation, `/bye` (or Ctrl+D) quits.
 
 ## Learn more
 
+- [docs/roadmap.md](docs/roadmap.md): the plan, step by step
+
 - [docs/cheatsheets/](docs/cheatsheets/README.md): tested terminal commands for Docker, Ollama, its HTTP API, the GPU and git
 - [docs/01-setup.md](docs/01-setup.md): what the containers do, and GPU vs CPU
 - [docs/02-chat-history.md](docs/02-chat-history.md): the model has no memory; the program resends the history
