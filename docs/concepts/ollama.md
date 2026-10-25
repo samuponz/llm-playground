@@ -148,9 +148,13 @@ Our setup:
 ## Try it yourself
 
 ```bash
-# Watch the server while a client talks to it (two terminals)
-docker compose logs -f ollama | grep GIN
+# Watch the server while a client talks to it (two terminals).
+# Terminal 1: leave this running; it prints only NEW requests (Ctrl+C to stop)
+docker compose logs -f --tail 0 ollama | grep GIN
+# Terminal 2: send a request, then look at terminal 1
 docker compose exec ollama ollama run qwen3:1.7b "Say hi"
+
+# Run each command below on its own, one at a time
 
 # The model files and a manifest
 docker compose exec ollama sh -c 'cd /root/.ollama/models/blobs && ls -lS | head -4 && head -c 4 $(ls -S | head -1); echo'
