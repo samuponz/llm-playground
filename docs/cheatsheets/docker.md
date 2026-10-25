@@ -1,7 +1,31 @@
 # Docker cheatsheet
 
-Service names in this project: `ollama` (long-running model server) and `app` (our
-Python code, started when needed). Run Compose commands from the project folder.
+Two tools in one sheet:
+
+- **`docker ...`** works on the whole machine, from **any folder**. You name containers
+  and images yourself (`llm_playground-ollama-1`).
+- **`docker compose ...`** works on this project only, and only **from the project
+  folder** (elsewhere: `no configuration file provided`). You use service names:
+  `ollama` (long-running model server) and `app` (our Python code, started when needed).
+
+## Stop things: which command, from where
+
+| Want to stop... | Command | Run from |
+|---|---|---|
+| **one** container | `docker stop <name>` | any folder |
+| **all leftover** chats/shells, keeping ollama | `docker stop $(docker ps -q --filter label=com.docker.compose.project=llm_playground --filter label=com.docker.compose.oneoff=True)` | any folder |
+| **the whole project** (ollama too) | `docker compose down` | project folder |
+| only the model server | `docker compose stop ollama` (start again: `docker compose start ollama`) | project folder |
+
+```bash
+docker ps                                        # 1. what is running? note the name
+docker stop llm_playground-app-run-7b84da33d077  # 2. stop it (polite, forced after 10 s)
+docker ps -a                                     # 3. gone: --rm deleted it once stopped
+```
+
+Tips: **names must be typed in full**, but **IDs can be shortened** to any unique start
+(`docker ps` shows IDs in the first column; `docker stop cdca` works). In zsh, **Tab**
+completes names after `docker stop `.
 
 ## Who does what
 
