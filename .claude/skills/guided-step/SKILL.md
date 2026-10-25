@@ -16,6 +16,23 @@ The user is learning. They want control and quick understanding without being ov
 5. **After** — short summary: what changed (files, commands), what is still open, and how the user can re-run the check themselves.
 6. **Stop** — wait for the user's OK before the next step.
 
+## Depth check (keep the project moving)
+
+Deep dives are welcome: understanding is the goal. But the user wants a nudge when
+curiosity stops feeding the project.
+
+- **On-plan** = the question helps the current step (understanding the code just
+  written, an error, a choice we must make). Never interrupt these.
+- **Tangent** = interesting, but not needed for the current step.
+- After **3 tangent exchanges in a row**, end the answer with one line:
+  `⏸ Depth check: we've spent N exchanges on <topic>. Park it in docs/to-explore.md and go back to <current step>, or keep going?`
+- Ask once per tangent. If the user keeps going, respect it and don't ask again for
+  that topic.
+- When a topic is parked, add a short entry to `docs/to-explore.md` (what came up,
+  open questions), then resume the step where it stopped.
+- `🔍 Deeper:` notes the user doesn't pick up are not parked automatically: only
+  topics we actually started discussing.
+
 ## Style
 
 - Simple words, short sentences. No jargon without a 5-word gloss.

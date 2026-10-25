@@ -24,6 +24,25 @@ Each one is a candidate for its own doc page and visualisation.
 - Experiments to try: `OLLAMA_FLASH_ATTENTION=1`, `OLLAMA_KV_CACHE_TYPE=q8_0`,
   a smaller context (2048). Do more layers fit on the GPU? How does speed change?
 
+## Parked from the Docker and Ollama deep dives (step 2)
+
+Already covered in [concepts/containers.md](concepts/containers.md),
+[concepts/ollama.md](concepts/ollama.md) and the cheatsheets. Still open:
+
+- **Rootless Docker and user namespaces**: making root in a container not equal root on
+  the host. What does it cost?
+- **Image layers**: how Docker stores an 8 GB image once and shares it between containers.
+- **System calls**: watch them with `strace`; why one shared kernel is stable enough.
+- **PID 1 and zombies**: why `ollama serve` as PID 1 left a zombie, and Compose's
+  `init: true`.
+- **`docker attach` and detaching** (Ctrl+P Ctrl+Q): reconnecting to an orphan.
+- **Why Docker bypasses ufw** (iptables chains), and safe remote access to Ollama
+  (reverse proxy with a password, or a VPN).
+- **Linux memory**: the page cache, and when swap becomes a problem.
+- **Harness vs model fit**: give the same tools to qwen3 1.7B / 4B / 8B and measure how
+  often each picks the right one (good chart for the shared material).
+- **The LLM timeline** (2017 → today) as an interactive visualisation.
+
 ## Old GPUs and CUDA versions
 
 - Ollama 0.40.11 skips the MX150 in its CUDA 13 library (`compute capability not in

@@ -18,6 +18,8 @@ visualisations can replay.
 
 I'm new to local LLMs. When you make a non-obvious decision (library choice, model setting, architecture), explain it briefly in your reply so I learn why, not just what.
 
+Work step by step with the `guided-step` skill. I tend to dig deep into side topics: after 3 exchanges in a row that don't move the current step forward, ask me once whether to park the topic in `docs/to-explore.md` and get back to the step (details in the skill).
+
 ## Hardware constraints
 
 - 2017 ASUS Vivobook, Linux, 16 GB RAM (~12 GB free), NVIDIA MX150 with 2 GB VRAM.
