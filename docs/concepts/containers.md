@@ -139,6 +139,66 @@ com.docker.compose.service = ollama
 com.docker.compose.project.working_dir = /home/samuponz/Documents/Projects/LLM_playground
 ```
 
+## A project is several containers, side by side
+
+Compose runs one container per job, next to each other (not inside each other), on a
+private network it creates for the project:
+
+```mermaid
+flowchart LR
+    subgraph engine["Docker Engine"]
+        subgraph net["network llm_playground_default"]
+            ollama["llm_playground-ollama-1<br/>ollama serve<br/>started once, runs for hours"]
+            app1["app-run-...<br/>python chat.py<br/>one per docker compose run"]
+            app2["app-run-...<br/>another chat"]
+        end
+    end
+    app1 -- "HTTP http://ollama:11434" --> ollama
+    app2 -- "HTTP" --> ollama
+```
+
+| | `ollama` | `app` |
+|---|---|---|
+| Created by | `docker compose up -d ollama`, once | each `docker compose run --rm app` creates a new one |
+| Lives | hours or days (`restart: unless-stopped`) | as long as the chat session |
+| Role | server: loads models, answers requests | client: sends requests |
+
+- **`depends_on: ollama`** means "make sure ollama is running before starting app": start
+  order, not nesting. `run` checks it (`✔ Container llm_playground-ollama-1 Running`)
+  and creates only the app container.
+- **Service names are hostnames** on the project network: the app reaches the server at
+  `http://ollama:11434`. Inside a container, `localhost` is that container itself.
+
+### One job per container
+
+Each container is built around one **main process** (PID 1): `ollama serve`, or
+`python chat.py`. The container lives exactly as long as that process: when the chat
+exits, its container stops.
+
+A container can still hold several processes: `ollama serve` starts llama.cpp "runner"
+helpers to do the maths, and a shell in the app container can start `python chat.py`.
+One job, possibly several processes.
+
+| Why one job per container | In this project |
+|---|---|
+| each part has only the files it needs | CUDA libraries in ollama; Python and `openai` in app |
+| parts start, stop and update independently | chats come and go; the server keeps running |
+| a crash stays contained | a bug in `chat.py` doesn't touch the server |
+| easy to scale | five terminals = five chat containers, one server |
+
+### Without Docker
+
+The same roles exist without containers, installed directly on the system:
+
+| Part | Without Docker | With Docker |
+|---|---|---|
+| model server | a background program: a **systemd service** on Linux (`ollama.service`), a background tray app on Windows | the `ollama` container |
+| chat | a normal program run in a terminal (`python chat.py`) | an `app` container per run |
+| Docker itself | | `docker.service`, a background service |
+
+Windows calls background programs *services*; Linux calls them *daemons*, managed by
+systemd. Docker keeps the roles and isolates each one, with its own files.
+
 ## A container belongs to the Engine, not to your terminal
 
 `docker compose run app` asks the Engine for a container, then **connects your keyboard
