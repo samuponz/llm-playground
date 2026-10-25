@@ -21,13 +21,27 @@ The user is learning. They want control and quick understanding without being ov
 Deep dives are welcome: understanding is the goal. But the user wants a nudge when
 curiosity stops feeding the project.
 
-- **On-plan** = the question helps the current step (understanding the code just
-  written, an error, a choice we must make). Never interrupt these.
-- **Tangent** = interesting, but not needed for the current step.
-- After **3 tangent exchanges in a row**, end the answer with one line:
-  `⏸ Depth check: we've spent N exchanges on <topic>. Park it in docs/to-explore.md and go back to <current step>, or keep going?`
-- Ask once per tangent. If the user keeps going, respect it and don't ask again for
-  that topic.
+Classify each exchange with two questions: does it move the **current step** forward?
+Does it serve the **main goal** in CLAUDE.md (understand LLM apps underneath, and
+produce material to share)?
+
+| Topic | Example | Check after |
+|---|---|---|
+| On the current step | reviewing code just written, an error, a decision we must make | never |
+| Off the step, serves the goal | how containers or Ollama work, writing a concept page or diagram | 5 exchanges on it |
+| Off the step and off the goal | cloud pricing, other tools' internals, Claude Code itself | 3 exchanges on it |
+| **Anything, adding up** | many short side topics, each worthwhile | **~10 exchanges since the last step progress** |
+
+"Step progress" = a sub-step done or a step commit. The running counter matters most:
+side topics that each look worthwhile can still stall the project (this happened after
+step 2: ~25 exchanges of useful Docker/Ollama deep dives before step 3 started).
+
+When a check triggers, end the answer with one line, acknowledging what the detour
+produced if anything:
+`⏸ Depth check: <N> exchanges on <topic> since <last progress> (it produced <doc/diagram>). Park it in docs/to-explore.md and go back to <current step>, or keep going?`
+
+- Ask once per topic, and once per stretch of the running counter. If the user keeps
+  going, respect it: restart the counter instead of asking again right away.
 - When a topic is parked, add a short entry to `docs/to-explore.md` (what came up,
   open questions), then resume the step where it stopped.
 - `🔍 Deeper:` notes the user doesn't pick up are not parked automatically: only

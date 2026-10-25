@@ -18,7 +18,7 @@ visualisations can replay.
 
 I'm new to local LLMs. When you make a non-obvious decision (library choice, model setting, architecture), explain it briefly in your reply so I learn why, not just what.
 
-Work step by step with the `guided-step` skill. I tend to dig deep into side topics: after 3 exchanges in a row that don't move the current step forward, ask me once whether to park the topic in `docs/to-explore.md` and get back to the step (details in the skill).
+Work step by step with the `guided-step` skill. I tend to dig deep into side topics, even useful ones. Watch two things: whether a topic moves the current step forward, and whether it serves the goal above. Ask me once whether to park it in `docs/to-explore.md` and get back to the step after 3 off-goal exchanges, 5 on-goal ones, or about 10 exchanges since the last step progress whatever the topic (details in the skill).
 
 ## Hardware constraints
 
