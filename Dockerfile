@@ -11,3 +11,6 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
 # The code itself is not copied: docker-compose.yml mounts the project folder at /app
+
+# Default command: `docker compose run --rm app` starts the chat
+CMD ["python", "chat.py"]
