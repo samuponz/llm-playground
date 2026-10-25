@@ -3,8 +3,8 @@
 Learn how LLM apps work underneath by building each piece by hand, with small models
 running locally in [Ollama](https://ollama.com). Everything runs in Docker.
 
-Status: step 2 of the plan (a terminal chat that keeps history). Next: making the
-internals visible (tokens, speed, traces).
+Status: step 3 of the [roadmap](docs/roadmap.md): the chat shows tokens, speed and
+context usage. Next: the context overflow experiment and traces.
 
 ## What you need
 
@@ -45,8 +45,10 @@ docker compose run --rm -e LLM_MODEL=qwen3:1.7b app      # fast model, for one r
 docker compose run --rm -e LLM_THINKING=true app         # show the model's thinking (grey)
 ```
 
-Inside the chat: `/history` shows exactly what is sent to the model, `/clear` forgets
-the conversation, `/bye` (or Ctrl+D) quits.
+After each answer the chat shows tokens read and written, speed, and how full the
+context window is. Inside the chat: `/history` shows exactly what is sent to the model,
+`/context` shows the context window, `/clear` forgets the conversation, `/bye` (or
+Ctrl+D) quits.
 
 ## Useful commands
 
@@ -60,10 +62,10 @@ the conversation, `/bye` (or Ctrl+D) quits.
 ## Learn more
 
 - [docs/roadmap.md](docs/roadmap.md): the plan, step by step
-
 - [docs/cheatsheets/](docs/cheatsheets/README.md): tested terminal commands for Docker, Ollama, its HTTP API, the GPU and git
 - [docs/01-setup.md](docs/01-setup.md): what the containers do, and GPU vs CPU
 - [docs/02-chat-history.md](docs/02-chat-history.md): the model has no memory; the program resends the history
+- [docs/03-tokens-and-context.md](docs/03-tokens-and-context.md): tokens, the context window, reading vs writing speed
 - [docs/concepts/containers.md](docs/concepts/containers.md): how containers work (namespaces, cgroups, images)
 - [docs/concepts/ollama.md](docs/concepts/ollama.md): how Ollama works (server and clients, model files, local vs cloud, security)
 - [docs/experiments/](docs/experiments/README.md): real conversations, fact-checked: what models know and make up
