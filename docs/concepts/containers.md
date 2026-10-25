@@ -120,6 +120,106 @@ lower privileges. This is why:
 - being in the `docker` group is effectively root access
 - our `app` container runs as your own user (`user: 1000:1000` in `docker-compose.yml`)
 
+## Engine, clients and Compose
+
+Docker is a server plus clients, like Ollama:
+
+| Part | What it is |
+|---|---|
+| **Docker Engine** (`dockerd`) | a background service started at boot. It creates, runs and owns every container |
+| **`docker`** | a client: sends requests to the Engine through `/var/run/docker.sock` |
+| **`docker compose`** | a translator on top: reads `docker-compose.yml` + `.env` in the current folder, turns service names into containers, and labels them |
+
+The Engine knows nothing about folders or Compose files. Compose recognises "its"
+containers by the labels it sticks on them:
+
+```
+com.docker.compose.project = llm_playground
+com.docker.compose.service = ollama
+com.docker.compose.project.working_dir = /home/samuponz/Documents/Projects/LLM_playground
+```
+
+## A container belongs to the Engine, not to your terminal
+
+`docker compose run app` asks the Engine for a container, then **connects your keyboard
+and screen to it**. Tested: closing the terminal kills only that client; the container
+keeps running, idle, as an orphan.
+
+```mermaid
+flowchart LR
+    t["terminal"] --> c["docker compose run<br/>(client)"]
+    c -- "connection" --> e["Docker Engine"]
+    e --> k["container<br/>(bash / chat.py)"]
+```
+
+| Event | Client | Container |
+|---|---|---|
+| `/bye`, `exit`, Ctrl+D | ends | its program ends, so it **stops**; `--rm` then deletes it |
+| terminal window closed | killed | **keeps running** |
+| `docker stop <name>` | | stops; `--rm` deletes it |
+
+`--rm` sets `AutoRemove: true` on the container: the Engine deletes it once it has
+stopped, however it stopped. It never stops anything by itself.
+
+## Containers are disposable
+
+A container starts from the image every time. Anything changed inside it disappears
+when it is removed: a tool installed with `apt-get`, a file written outside `/app`.
+What survives:
+
+| Survives | Example in this project |
+|---|---|
+| the **image** (built from the Dockerfile) | Python + the `openai` package |
+| **mounted folders** | the project folder at `/app`: an edit inside is an edit on the laptop |
+| **volumes** | `ollama_models`: downloaded models survive `down` and rebuilds |
+
+So everything a container needs belongs in the Dockerfile, a mount or a volume.
+
+## What a program inside sees
+
+A program doesn't know it is in a container: it asks the kernel (through system calls)
+and the kernel answers according to its namespaces. Python's `os` module in the app
+container vs on the host:
+
+| Question | Container | Host | Why |
+|---|---|---|---|
+| `os.getpid()` | 1 | 87200 | PID namespace |
+| `socket.gethostname()` | `6a1433331c2f` | `x580vn` | UTS namespace |
+| `os.uname().release` | 6.8.0-138-generic | 6.8.0-138-generic | shared kernel |
+| `os.getuid()` | 1000 | 1000 | `user: 1000:1000` in `docker-compose.yml` |
+| `os.listdir("/")` | `.dockerenv`, `app`, `bin`, ... | the laptop's disk | mount namespace |
+| `os.environ["LLM_MODEL"]` | `qwen3:4b-q4_K_M` | not set | handed over by Docker at start |
+
+**Environment variables** are name=value pairs a process receives when it starts.
+Compose fills the blanks in `docker-compose.yml` from `.env` and starts the container
+with them; Python reads them with `os.environ`. Python never reads `.env` itself.
+
+```
+chat.py          the messages list
+openai package   builds HTTP requests
+Python + os      asks the OS for things
+  ── system calls ──
+Linux kernel     answers through namespaces (what you see) and cgroups (how much)
+hardware         CPU, RAM, GPU
+```
+
+## ENTRYPOINT and CMD
+
+An image defines how it starts: a fixed **ENTRYPOINT** and a replaceable **CMD**.
+
+| Image | ENTRYPOINT | CMD |
+|---|---|---|
+| `ollama/ollama` | `/bin/ollama` | `serve` |
+| our `app` | none | `python chat.py` |
+
+Arguments after the service name replace CMD. So `docker compose run app bash` gives a
+shell, while `docker compose run ollama python ...` runs `/bin/ollama python ...` and
+fails. The ollama image is "the ollama program"; ours is "a Python box that defaults to
+the chat". `exec` skips the ENTRYPOINT.
+
+Images contain only what their makers put in: the ollama image (Ubuntu) has `top`;
+`python:3.12-slim` (Debian) has no `top`, `ps` or `man`, to stay small.
+
 ## Try it yourself
 
 ```bash
@@ -134,6 +234,15 @@ cat /proc/<that pid>/cgroup
 
 # A memory limit in action
 docker run --rm --memory 100m ubuntu cat /sys/fs/cgroup/memory.max
+
+# What Python sees from inside
+docker compose run --rm app python -c "import os, socket; print(os.getpid(), socket.gethostname(), os.uname().release)"
+
+# Compose's labels on a container
+docker inspect llm_playground-ollama-1 --format '{{json .Config.Labels}}' | jq
+
+# Make an orphan: open a shell, close the window, then
+docker ps
 ```
 
 ## Open questions

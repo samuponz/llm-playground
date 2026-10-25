@@ -23,7 +23,8 @@ flowchart LR
 
 | Cheatsheet | Component | Use it to |
 |---|---|---|
-| [docker.md](docker.md) | Docker Compose | start/stop containers, read logs, look inside |
+| [docker.md](docker.md) | Docker + Compose | engine vs client, run vs exec, shells, orphans, settings, logs |
+| [linux.md](linux.md) | Linux processes | read `ps` and `top`, and `/proc` underneath |
 | [ollama-cli.md](ollama-cli.md) | `ollama` command | chat by hand, inspect models, see the hidden template |
 | [ollama-api.md](ollama-api.md) | HTTP API with `curl` | send the exact requests our Python code will send |
 | [gpu.md](gpu.md) | `nvidia-smi` | see what is on the GPU, and how fast it runs |
