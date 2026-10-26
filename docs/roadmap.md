@@ -28,7 +28,9 @@ Side questions that come up go to [to-explore.md](to-explore.md).
 
 One concept page plus a small experiment each, with numbers from this laptop:
 
-- **Tokens and the tokenizer**: what a token is, why "Leopardi" costs more than "Sam".
+- ✅ **Tokens and the tokenizer**: what a token is, why "Leopardi" costs more than "Sam".
+  [04-tokens.md](04-tokens.md), [experiment 003](experiments/003-what-text-costs.md),
+  `tokens.py`.
 - **KV cache**: what it stores, why context size costs memory, why it pushes layers off
   the GPU (see [to-explore.md](to-explore.md)).
 - **Chat templates**: how a list of messages becomes one text with special tokens.

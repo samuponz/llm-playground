@@ -24,6 +24,14 @@ Each one is a candidate for its own doc page and visualisation.
 - Experiments to try: `OLLAMA_FLASH_ATTENTION=1`, `OLLAMA_KV_CACHE_TYPE=q8_0`,
   a smaller context (2048). Do more layers fit on the GPU? How does speed change?
 
+## Tokens (step 4a)
+
+- **BPE by hand**: the vocabulary and merge rules are also inside the model's GGUF file.
+  Read them with the `gguf` Python package and write the merge loop ourselves, then check
+  it gives the same tokens as `tokens.py`.
+- **Token embeddings**: what the model does with a token ID first (looks up a vector of
+  numbers). Visualise which tokens end up close together.
+
 ## Parked from the Docker and Ollama deep dives (step 2)
 
 Already covered in [concepts/containers.md](concepts/containers.md),

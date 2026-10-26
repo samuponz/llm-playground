@@ -1,7 +1,7 @@
 # 3. Tokens and the context window
 
 Models don't read characters or words: they read **tokens**, pieces of text of roughly
-3–4 characters on average in English. Everything has a cost in tokens: the question, the
+3–4 characters on average in English (how text is cut: [04-tokens.md](04-tokens.md)). Everything has a cost in tokens: the question, the
 whole history re-sent each turn, the answer, and the thinking.
 
 The **context window** is the maximum number of tokens the model can handle in one

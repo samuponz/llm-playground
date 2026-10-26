@@ -4,8 +4,9 @@ Learn how LLM apps work underneath by building each piece by hand, with small mo
 running locally in [Ollama](https://ollama.com). Everything runs in Docker.
 
 Status: step 3 of the [roadmap](docs/roadmap.md) done: the chat shows tokens, speed and
-context usage, warns when the context overflows, and records sessions. Next: step 4,
-core concepts (tokens, KV cache, sampling, quantization).
+context usage, warns when the context overflows, and records sessions. Now: step 4,
+core concepts, one at a time (done: tokens; next: KV cache, chat templates, sampling,
+quantization).
 
 ## What you need
 
@@ -52,6 +53,16 @@ context window is. Inside the chat: `/history` shows exactly what is sent to the
 Ctrl+D) quits. Each session is saved to `traces/` (not committed; turn off with
 `LLM_TRACE=false`): see [docs/traces.md](docs/traces.md).
 
+## See the tokens
+
+```bash
+docker compose run --rm app python tokens.py "Mi chiamo Samuele."
+```
+
+Shows how a text is split into the tokens the model reads, with their IDs and counts.
+The first run downloads Qwen3's tokenizer (11 MB) into `models/`. See
+[docs/04-tokens.md](docs/04-tokens.md).
+
 ## Useful commands
 
 | Command | What it does |
@@ -68,6 +79,7 @@ Ctrl+D) quits. Each session is saved to `traces/` (not committed; turn off with
 - [docs/01-setup.md](docs/01-setup.md): what the containers do, and GPU vs CPU
 - [docs/02-chat-history.md](docs/02-chat-history.md): the model has no memory; the program resends the history
 - [docs/03-tokens-and-context.md](docs/03-tokens-and-context.md): tokens, the context window, reading vs writing speed
+- [docs/04-tokens.md](docs/04-tokens.md): what a token is, where the vocabulary comes from, why Italian costs more
 - [docs/traces.md](docs/traces.md): the format of recorded chat sessions
 - [docs/concepts/containers.md](docs/concepts/containers.md): how containers work (namespaces, cgroups, images)
 - [docs/concepts/ollama.md](docs/concepts/ollama.md): how Ollama works (server and clients, model files, local vs cloud, security)
