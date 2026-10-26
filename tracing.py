@@ -1,7 +1,8 @@
 """Save each chat session to traces/ as JSON Lines: one event per line.
 
-Raw material for later visualisations: it records exactly what was sent to the
-model and what came back, so a real conversation can be replayed turn by turn.
+Raw material for later visualisations: a real conversation can be replayed turn by
+turn. Each turn stores only what is new (question and answer), not the whole
+history, so the file grows linearly; the full request is rebuilt by replaying.
 The file is appended after every event, so a crash loses nothing written so far.
 """
 import json
@@ -31,13 +32,13 @@ class Trace:
         with open(self.path, "a", encoding="utf-8") as f:
             f.write(json.dumps(line, ensure_ascii=False) + "\n")
 
-    def turn(self, messages_sent, answer, thinking, stats, warning):
-        """One answered question: the exact request and everything measured."""
+    def turn(self, question, answer, thinking, stats, warning):
+        """One answered question: what is new in the history, and everything measured."""
         self.turns += 1
         self.write(
             "turn",
             turn=self.turns,
-            messages_sent=messages_sent,
+            question=question,
             answer=answer,
             thinking=thinking,
             stats={
@@ -56,5 +57,5 @@ class NoTrace:
     def write(self, event, **data):
         pass
 
-    def turn(self, messages_sent, answer, thinking, stats, warning):
+    def turn(self, question, answer, thinking, stats, warning):
         pass

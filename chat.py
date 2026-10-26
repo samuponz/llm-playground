@@ -127,7 +127,6 @@ def main():
             continue
 
         messages.append({"role": "user", "content": text})
-        sent = list(messages)  # a copy: exactly what this request sends
         previous_stats = last_stats
         try:
             answer, thinking, last_stats = ask(messages)
@@ -157,7 +156,7 @@ def main():
         warning = cut or context_warning(last_stats, config.CONTEXT_SIZE)
         if warning:
             print(warning)
-        trace.turn(sent, answer, thinking, last_stats, warning)
+        trace.turn(text, answer, thinking, last_stats, warning)
 
     trace.write("session_end", turns=len([m for m in messages if m["role"] == "assistant"]))
 
