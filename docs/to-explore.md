@@ -31,6 +31,25 @@ Each one is a candidate for its own doc page and visualisation.
   it gives the same tokens as `tokens.py`.
 - **Token embeddings**: what the model does with a token ID first (looks up a vector of
   numbers). Visualise which tokens end up close together.
+- **Vocabulary size across models**: it grew over time, mostly for other languages.
+  It is fixed within a family (all Qwen3 sizes share 151,669 entries), so a bigger model
+  doesn't get a bigger vocabulary.
+
+  | Model | Year | Vocabulary |
+  |---|---|---|
+  | GPT-2 | 2019 | ~50,000 |
+  | Llama 2 | 2023 | 32,000 |
+  | GPT-4 | 2023 | ~100,000 |
+  | Llama 3 | 2024 | ~128,000 |
+  | GPT-4o | 2024 | ~200,000 |
+  | Qwen3 | 2025 | ~151,000 |
+  | Gemma 3 | 2025 | ~262,000 |
+
+  Cost: one embedding row per entry. For `qwen3:1.7b`, 151,669 × 2,048 ≈ 310M
+  parameters, ~18% of the model. To try: compare English vs Italian token counts across
+  tokenizers (e.g. Llama 3, Gemma 3) to see whether a bigger vocabulary narrows the gap.
+  Claude's tokenizer is not public; only counts are available, via the API's
+  `count_tokens` (needs a key).
 
 ## Parked from the Docker and Ollama deep dives (step 2)
 
