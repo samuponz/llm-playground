@@ -6,6 +6,8 @@ conversation in the list `messages` and sends all of it with every question.
 After each answer it shows what the turn cost: tokens read and written, speed,
 and how full the context window is.
 
+Set LLM_SYSTEM to start every chat with a system message (instructions for the model).
+
 Commands: /history (show what is sent), /context (context window usage),
 /clear (forget everything), /bye (quit).
 """
@@ -89,15 +91,20 @@ def ask(messages):
 def main():
     thinking = "on" if config.THINKING else "off"
     print(f"Chatting with {config.MODEL} (thinking {thinking}).")
+    if config.SYSTEM:
+        print(f"System message: {config.SYSTEM}")
     print("Commands: /history  /context  /clear  /bye")
 
     settings = {"model": config.MODEL, "base_url": config.BASE_URL,
-                "context_size": config.CONTEXT_SIZE, "thinking_enabled": config.THINKING}
+                "context_size": config.CONTEXT_SIZE, "thinking_enabled": config.THINKING,
+                "system": config.SYSTEM}
     trace = Trace(settings) if config.TRACE else NoTrace()
     if trace.path:
         print(f"Saving this session to {trace.path}")
 
-    messages = []  # the whole memory of the conversation
+    # The whole memory of the conversation. A system message, if set, always comes first.
+    start = [{"role": "system", "content": config.SYSTEM}] if config.SYSTEM else []
+    messages = list(start)
     last_stats = None  # numbers from the last answered request, for /context
     was_cut = False  # has the server already dropped part of this conversation?
 
@@ -113,7 +120,7 @@ def main():
         if text == "/bye":
             break
         if text == "/clear":
-            messages.clear()
+            messages[:] = start  # keep the system message: it belongs to the app, not the chat
             last_stats = None  # the numbers described a history that no longer exists
             was_cut = False
             trace.write("clear")

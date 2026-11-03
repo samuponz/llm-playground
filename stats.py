@@ -55,6 +55,7 @@ def context_report(stats, context_size, messages):
 
     used = context_used(stats)
     fraction = context_fraction(stats, context_size)
+    system = sum(1 for m in messages if m["role"] == "system")
     user = sum(1 for m in messages if m["role"] == "user")
     assistant = sum(1 for m in messages if m["role"] == "assistant")
     return "\n".join([
@@ -63,7 +64,7 @@ def context_report(stats, context_size, messages):
         f"  last request read  {stats.read:5} tokens   (template + {max(len(messages) - 2, 0)} earlier messages + question)",
         f"  last answer wrote  {stats.wrote:5} tokens   (thinking included; only the answer is kept)",
         f"  free               {max(context_size - used, 0):5} tokens",
-        f"Messages in history: {len(messages)} ({user} user, {assistant} assistant)",
+        f"Messages in history: {len(messages)} ({system} system, {user} user, {assistant} assistant)",
     ])
 
 
