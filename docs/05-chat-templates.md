@@ -8,20 +8,21 @@ each request, Ollama pastes the list of messages into **one text**, using the mo
 flowchart LR
     subgraph M["the chat: a list of messages, each with a role"]
         direction TB
-        S["system (the app): Answer briefly."]
-        U1["user (you): My name is Sam."]
-        A1["assistant (the model, earlier): Nice to meet you, Sam!"]
-        U2["user (you): What is my name?"]
+        S["system (the app): Answer in one sentence."]
+        U1["user (you): What is the capital of Italy?"]
+        A1["assistant (the model, earlier): The capital of Italy is Rome."]
+        U2["user (you): How many people live there?"]
         S --> U1 --> A1 --> U2
     end
     M --> T[chat template]
     T --> X["one text with<br/>special tokens"]
     X --> K[tokenizer] --> I[token IDs] --> L[model]
-    L --> A["continues the text:<br/>the assistant's answer<br/>Your name is Sam."]
+    L --> A["continues the text:<br/>the assistant's answer<br/>About 2.8 million people live in Rome."]
 ```
 
 The **role** says who wrote each message: **system** is background instructions from
 the app, **user** is you, **assistant** is the model's earlier answers, pasted back in.
+"There" only means Rome because the earlier messages are part of the text.
 
 Each model family is trained with its own template: Qwen3 uses `<|im_start|>` and
 `<|im_end|>`, other families use other markers. Sending a model text in the wrong
