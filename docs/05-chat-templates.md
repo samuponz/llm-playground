@@ -20,9 +20,22 @@ flowchart LR
     L --> A["continues the text:<br/>the assistant's answer<br/>About 2.8 million people live in Rome."]
 ```
 
-The **role** says who wrote each message: **system** is background instructions from
-the app, **user** is you, **assistant** is the model's earlier answers, pasted back in.
-"There" only means Rome because the earlier messages are part of the text.
+## Roles: who wrote each message
+
+| Role | Written by | What for | In the example |
+|---|---|---|---|
+| **system** | the app's developer, once, at the top | instructions for the whole chat: style, persona, rules | `Answer in one sentence.` |
+| **user** | you | your questions | `What is the capital of Italy?` |
+| **assistant** | the model | its earlier answers, pasted back in so it can "remember" them | `The capital of Italy is Rome.` |
+
+The **system message** is optional and the person chatting usually doesn't see it. Chat
+apps send a long hidden one before your first question ("You are a helpful
+assistant…"). Here it sets the style, so the answer is one sentence. Our
+[`chat.py`](../chat.py) doesn't send one yet.
+
+The model follows the system message more than a user message only because it was trained
+to: underneath, it's just the first block of text. "There" in the last question only
+means Rome because the earlier messages are in the text too.
 
 Each model family is trained with its own template: Qwen3 uses `<|im_start|>` and
 `<|im_end|>`, other families use other markers. Sending a model text in the wrong
