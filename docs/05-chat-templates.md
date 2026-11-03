@@ -6,11 +6,22 @@ each request, Ollama pastes the list of messages into **one text**, using the mo
 
 ```mermaid
 flowchart LR
-    M["messages<br/>system · user · assistant · user"] --> T[chat template]
+    subgraph M["the chat: a list of messages, each with a role"]
+        direction TB
+        S["system (the app): Answer briefly."]
+        U1["user (you): My name is Sam."]
+        A1["assistant (the model, earlier): Nice to meet you, Sam!"]
+        U2["user (you): What is my name?"]
+        S --> U1 --> A1 --> U2
+    end
+    M --> T[chat template]
     T --> X["one text with<br/>special tokens"]
     X --> K[tokenizer] --> I[token IDs] --> L[model]
-    L --> A["continues the text:<br/>the assistant's answer"]
+    L --> A["continues the text:<br/>the assistant's answer<br/>Your name is Sam."]
 ```
+
+The **role** says who wrote each message: **system** is background instructions from
+the app, **user** is you, **assistant** is the model's earlier answers, pasted back in.
 
 Each model family is trained with its own template: Qwen3 uses `<|im_start|>` and
 `<|im_end|>`, other families use other markers. Sending a model text in the wrong
