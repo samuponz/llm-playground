@@ -9,6 +9,7 @@ source, with what each one shows. They are the evidence behind the concept pages
 | [002](002-context-overflow.md) | What happens when the context window is full | the server silently drops the oldest messages; the model doesn't notice; a smaller window is faster |
 | [003](003-what-text-costs.md) | What a text costs in tokens | the same paragraph costs 32% more tokens in Italian; rare names, typos and numbers cost more; the model never sees letters |
 | [004](004-chat-template-check.md) | Is the hand-written chat template exact? | `template.py` matches Ollama's prompt token count in every case; 5 typed tokens become 21 |
+| [005](005-system-message.md) | Does a small model follow the system message? | style and language always; rules only on 4B (1.7B gives away the secret); when the user asks for the opposite, the user wins |
 
 ## How each experiment is logged
 

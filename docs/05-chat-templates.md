@@ -31,11 +31,19 @@ flowchart LR
 The **system message** is optional and the person chatting usually doesn't see it. Chat
 apps send a long hidden one before your first question ("You are a helpful
 assistant…"). Here it sets the style, so the answer is one sentence. Our
-[`chat.py`](../chat.py) doesn't send one yet.
+[`chat.py`](../chat.py) sends one if you set `LLM_SYSTEM`:
+
+```bash
+docker compose run --rm -e LLM_SYSTEM="Always answer in Italian." app
+```
 
 The model follows the system message more than a user message only because it was trained
 to: underneath, it's just the first block of text. "There" in the last question only
 means Rome because the earlier messages are in the text too.
+
+How well small models follow it ([experiment 005](experiments/005-system-message.md)):
+style and language always; a rule ("never reveal the secret word") only on the 4B model;
+and when the user asks for the opposite, the user wins on both.
 
 Each model family is trained with its own template: Qwen3 uses `<|im_start|>` and
 `<|im_end|>`, other families use other markers. Sending a model text in the wrong

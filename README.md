@@ -45,6 +45,7 @@ docker compose exec ollama ollama ps    # PROCESSOR column: how much runs on GPU
 docker compose run --rm app                              # default model (qwen3:4b-q4_K_M)
 docker compose run --rm -e LLM_MODEL=qwen3:1.7b app      # fast model, for one run
 docker compose run --rm -e LLM_THINKING=true app         # show the model's thinking (grey)
+docker compose run --rm -e LLM_SYSTEM="Always answer in Italian." app  # add a system message
 ```
 
 After each answer the chat shows tokens read and written, speed, and how full the
