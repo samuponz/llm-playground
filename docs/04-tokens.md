@@ -76,9 +76,23 @@ are wrapped in them before reaching the model. That wrapping is the **chat templ
 
 ## Try it
 
+Common words cost the same in both languages (4 tokens each):
+
 ```bash
 docker compose run --rm app python tokens.py "the house is big"
 docker compose run --rm app python tokens.py "la casa è grande"
+```
+
+Longer, less frequent words are where Italian costs more (8 vs 11 tokens):
+
+```bash
+docker compose run --rm app python tokens.py "the model does not remember the previous conversation"
+docker compose run --rm app python tokens.py "il modello non ricorda la conversazione precedente"
+```
+
+Letters are hidden inside tokens, and code splits on its symbols:
+
+```bash
 docker compose run --rm app python tokens.py "strawberry"
 echo 'def add(a, b): return a + b' | docker compose run --rm -T app python tokens.py
 ```
