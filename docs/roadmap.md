@@ -33,7 +33,9 @@ One concept page plus a small experiment each, with numbers from this laptop:
   `tokens.py`.
 - **KV cache**: what it stores, why context size costs memory, why it pushes layers off
   the GPU (see [to-explore.md](to-explore.md)).
-- **Chat templates**: how a list of messages becomes one text with special tokens.
+- ✅ **Chat templates**: how a list of messages becomes one text with special tokens.
+  [05-chat-templates.md](05-chat-templates.md),
+  [experiment 004](experiments/004-chat-template-check.md), `template.py`.
 - **Sampling**: temperature, top-k, top-p: why the same question gives different answers.
 - **Quantization**: what `Q4_K_M` means and what it costs in quality.
 
