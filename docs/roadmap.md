@@ -36,7 +36,9 @@ One concept page plus a small experiment each, with numbers from this laptop:
 - ✅ **Chat templates**: how a list of messages becomes one text with special tokens.
   [05-chat-templates.md](05-chat-templates.md),
   [experiment 004](experiments/004-chat-template-check.md), `template.py`.
-- **Sampling**: temperature, top-k, top-p: why the same question gives different answers.
+- ✅ **Sampling**: temperature, top-k, top-p: why the same question gives different answers.
+  [06-sampling.md](06-sampling.md), [experiment 006](experiments/006-temperature-spread.md),
+  `sampling.py`.
 - **Quantization**: what `Q4_K_M` means and what it costs in quality.
 
 ## 5. Tests and GitHub Actions

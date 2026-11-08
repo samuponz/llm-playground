@@ -10,6 +10,7 @@ source, with what each one shows. They are the evidence behind the concept pages
 | [003](003-what-text-costs.md) | What a text costs in tokens | the same paragraph costs 32% more tokens in Italian; rare names, typos and numbers cost more; the model never sees letters |
 | [004](004-chat-template-check.md) | Is the hand-written chat template exact? | `template.py` matches Ollama's prompt token count in every case; 5 typed tokens become 21 |
 | [005](005-system-message.md) | Does a small model follow the system message? | style and language always; rules only on 4B (1.7B gives away the secret); when the user asks for the opposite, the user wins |
+| [006](006-temperature-spread.md) | How much does temperature spread the answers? | T=0 is repeatable; temperature only spreads what the list leaves room for ("Paris" never varies); the bigger model stays more consistent at the same temperature |
 
 ## How each experiment is logged
 
