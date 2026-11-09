@@ -64,6 +64,17 @@ Shows how a text is split into the tokens the model reads, with their IDs and co
 The first run downloads Qwen3's tokenizer (11 MB) into `models/`. See
 [docs/04-tokens.md](docs/04-tokens.md).
 
+## See the weights
+
+```bash
+docker compose run --rm app python weights.py                       # formats and bits per weight
+docker compose run --rm app python weights.py blk.0.attn_q.weight   # one matrix
+```
+
+Reads the model file straight from Ollama's storage (mounted read-only) and shows how
+the weights are stored. For one matrix it prints statistics and saves a histogram and an
+image to `docs/images/`. See [docs/08-quantization.md](docs/08-quantization.md).
+
 ## Useful commands
 
 | Command | What it does |
