@@ -1,0 +1,163 @@
+# 4e. Quantization
+
+A model is billions of numbers, its **weights**. They are trained as 16-bit floats
+(2 bytes each), so `qwen3:4b` would need about 8 GB. The file you run is 2.5 GB.
+**Quantization** is how: store each weight with fewer bits, accepting a small error.
+
+```mermaid
+flowchart LR
+    W["32 weights<br/>16 bits each"] --> S["find the block's scale<br/>(biggest value → biggest integer)"]
+    S --> I["round each weight to a<br/>small integer (4 bits)"]
+    I --> F["file: 32 integers<br/>+ 1 scale"]
+    F --> R["at run time:<br/>integer × scale ≈ weight"]
+```
+
+## Blocks and scales
+
+Weights are taken in **blocks** (typically 32). Each block gets one **scale**, and each
+weight is stored as a small integer. To use it: `value ≈ integer × scale`.
+
+Example: 4 bits (16 integers, −8 to 7), a block of 4 weights:
+
+```
+original:    0.12   -0.31    0.05    0.27
+scale = 0.31 / 7 ≈ 0.044                  (the biggest value maps to 7)
+stored:        3      -7       1       6   ← 4 bits each instead of 16
+recovered:   0.13   -0.31    0.04    0.27  ← small rounding errors
+```
+
+Every weight is now slightly wrong. It works because there are billions of them: the
+errors are small and mostly cancel out.
+
+## Why each block has its own scale: dynamic range
+
+Weights span a wide range: mostly tiny values, plus a few large **outliers**. One scale
+for everything would be set by the largest weight, and every small weight would round
+to 0:
+
+```
+weights:   0.02   -0.01   0.03   …   2.10  (outlier)
+scale = 2.10 / 7 = 0.30
+stored:      0       0      0    …     7      ← the small weights are wiped out
+```
+
+Inside a small block the range is usually narrow, so a per-block scale spends the few
+bits where the values actually are. An outlier only costs precision inside its own
+block. Like HDR photography: expose each region separately.
+
+The trade-off: each scale costs bits too. Smaller blocks are more precise but carry more
+scales. 32 is the usual compromise.
+
+## What weights look like
+
+Within one matrix, weights form a **bell shape centred on zero**, with heavier tails than
+a perfect bell curve:
+
+```
+how many
+weights
+   │            ▆█▆
+   │           ▅███▅
+   │          ▃█████▃
+   │        ▂▅███████▅▂
+   │  ·  ▁▂▄███████████▄▂▁  ·        ·  ← a few far-out outliers
+   └──────────────────────────────────── value
+        -0.1      0      +0.1          (illustrative; measured in experiment 008)
+```
+
+| Property | Why it matters for quantization |
+|---|---|
+| Centred near zero | positive and negative values roughly balance |
+| Most values small | most precision is needed close to zero |
+| Heavy tails | a few outliers stretch the range: the dynamic-range problem |
+| Each matrix has its own spread | one scale can't fit all of them |
+
+- Training starts from small random values drawn from a bell curve, scaled so signals
+  don't blow up across dozens of layers. Training reshapes them, but the bell shape
+  largely stays.
+- **Outliers are not noise.** A few specific dimensions carry consistently large values
+  in every layer; the model uses them for special jobs (linked to the
+  [attention sinks](07-kv-cache.md#why-keep-the-first-4-tokens-attention-sinks)).
+  Crush them and quality collapses, so good formats protect them.
+- Not everything is a bell: normalisation weights (a "volume knob" per dimension) sit
+  around 1. They are few, and usually kept at full precision.
+- A plain 4-bit grid spaces its 16 levels evenly, so with a bell curve most weights
+  crowd into the middle levels. Formats like *NF4* ("normal float") space the levels
+  along the bell curve instead: dense near zero, sparse in the tails.
+
+## Reading `Q4_K_M`
+
+| Part | Meaning |
+|---|---|
+| **Q4** | about 4 bits per weight |
+| **K** | "k-quants": blocks of 256 split into 8 sub-blocks of 32, each with its own scale and offset, stored compressed in 6 bits |
+| **M** | "medium" mix: the most sensitive matrices are kept at 6 bits (`Q6_K`), the rest at 4 |
+
+A value is rebuilt as `integer × scale + offset`. The offset shifts the range for blocks
+not centred on zero.
+
+### Why about 4.8 bits, not 4
+
+The scales cost bits too. One `Q4_K` block of 256 weights:
+
+```
+256 integers × 4 bits                         = 1024 bits
+8 sub-blocks × (6-bit scale + 6-bit offset)   =   96 bits
+2 numbers for the whole block × 16 bits       =   32 bits
+                                        total = 1152 bits ÷ 256 = 4.5 bits per weight
+```
+
+The "M" mix adds the `Q6_K` matrices (about 6.6 bits), so the average is roughly 4.8.
+Divide by 8 to get bytes: 0.6 bytes per weight × 4.0 billion weights ≈ **2.4 GB**. The
+file is 2.5 GB.
+
+## Why it also makes the model faster
+
+Writing one token means **reading every weight once**, and on this laptop speed is
+limited by how fast memory can be read ([experiment 007](experiments/007-kv-cache-size.md)).
+Fewer bytes per weight → less to read → more tokens per second. Quantization saves
+memory **and** buys speed, for the same reason.
+
+## What it costs
+
+| Format | Bits per weight | `qwen3:4b` size | Quality |
+|---|---|---|---|
+| F16 (original) | 16 | ~8 GB | reference |
+| Q8_0 | ~8.5 | ~4.3 GB | practically the same |
+| **Q4_K_M** | ~4.8 | ~2.5 GB | small loss; the usual best trade-off |
+| Q2_K | ~3 | ~1.7 GB | noticeably worse: confused answers, broken facts |
+
+Small models suffer more: a 1.7B has less spare capacity to absorb the errors than a 70B.
+
+🔍 Deeper: smarter methods (*imatrix*, *GPTQ*, *AWQ*) measure which weights matter
+most on sample text and protect those, so their low-bit versions lose less.
+
+## Static or dynamic?
+
+"Dynamic" means three different things:
+
+| Meaning | What it is | Here |
+|---|---|---|
+| Per-block scales | each block gets a scale fitted to its values | yes, but computed **once** when the file is made: *block-wise*, not dynamic |
+| Mixed bits per matrix | sensitive matrices get more bits | yes, mildly (the "M"); some tools call stronger versions "dynamic quants" |
+| Dynamic quantization (textbook) | **activations**, the numbers flowing through the model, are quantized **at run time** with scales computed on the fly | yes: llama.cpp turns activations into 8-bit blocks just before multiplying them with the 4-bit weights, for fast integer maths |
+
+```
+weights:      quantized once, offline (Q4_K_M file)        → static
+activations:  quantized at run time, per block, to 8 bits → dynamic
+KV cache:     quantized at run time as tokens arrive (q8_0) → dynamic
+```
+
+Weights are fixed, so they can be done offline. Activations depend on your prompt: their
+range is only known while the model runs.
+
+## Two quantizations: weights and KV cache
+
+| | Weights (`Q4_K_M`) | KV cache (`q8_0`, [4b](07-kv-cache.md)) |
+|---|---|---|
+| What | the model's fixed knowledge | the notes on the current conversation |
+| Chosen | when the file is made (in the model's tag) | when the server starts (`.env`) |
+| Same trick? | yes: blocks + scales | yes |
+
+Measured on this laptop: experiment 008 (next): size, speed and answers for Q4_K_M vs
+Q8_0, plus a histogram and an image of a real weight matrix.

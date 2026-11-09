@@ -40,6 +40,7 @@ One concept page plus a small experiment each, with numbers from this laptop:
   [06-sampling.md](06-sampling.md), [experiment 006](experiments/006-temperature-spread.md),
   `sampling.py`.
 - **Quantization**: what `Q4_K_M` means and what it costs in quality.
+  [08-quantization.md](08-quantization.md); experiment 008 next (with a weight histogram and image).
 
 ## 5. Tests and GitHub Actions
 
