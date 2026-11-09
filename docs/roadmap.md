@@ -45,7 +45,8 @@ One concept page plus a small experiment each, with numbers from this laptop:
 - **Confidence across an answer** (4f, from `LLMideas.md`): the probability of every
   token, live, coloured green (sure) to red (unsure). Fact vs wording, with vs without
   context (prepares step 7), and calibration: is the model sure when it is wrong?
-  `confidence.py`; concept page and experiment 009 next.
+  [09-confidence.md](09-confidence.md), `confidence.py`. Ideas to continue (chat
+  integration, with vs without context, calibration) are listed on the page.
 
 ## 5. Tests and GitHub Actions
 

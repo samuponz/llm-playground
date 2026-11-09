@@ -2,6 +2,7 @@
 
     docker compose run --rm app python confidence.py "In che anno è nato Giacomo Leopardi?"
     docker compose run --rm app python confidence.py --temperature 0 "Who wrote Hamlet?"
+    docker compose run --rm app python confidence.py --markdown traces/confidence-....json
 
 Each token is printed on a coloured background: how probable that token was in the
 model's own list when it was chosen (green = sure, red = unsure). This is the model's
@@ -111,13 +112,35 @@ def save(prompt, temperature, tokens):
     print(f"\nsaved {path}")
 
 
+def markdown(path):
+    """Turn a saved run into text for the docs: each token that was not sure gets a
+    coloured square after it (sure tokens stay plain, so the text stays readable)."""
+    with open(path) as f:
+        run = json.load(f)
+    squares = ["🟩", "🟨", "🟧", "🟥"]
+
+    def square(p):
+        return next(sq for sq, (lowest, _, _) in zip(squares, SCALE) if p >= lowest)
+
+    temperature = "model default" if run["temperature"] is None else run["temperature"]
+    print(f"Model `{run['model']}`, temperature {temperature}. "
+          f"Prompt: *{run['prompt']}*\n")
+    print("".join(t["token"] if t["p"] >= SCALE[0][0] else t["token"] + square(t["p"])
+                  for t in run["tokens"]))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    parser.add_argument("prompt")
+    parser.add_argument("prompt", help="the question, or with --markdown a saved run")
+    parser.add_argument("--markdown", action="store_true",
+                        help="print a saved run (traces/confidence-*.json) for the docs")
     parser.add_argument("--temperature", type=float, default=None,
                         help="default: the model's own setting (0.6 for Qwen3)")
     parser.add_argument("--top", type=int, default=20, help="alternatives per token (max 20)")
     args = parser.parse_args()
+    if args.markdown:
+        markdown(args.prompt)
+        return
 
     print(f"{config.MODEL}, temperature "
           f"{'model default' if args.temperature is None else args.temperature}\n")
