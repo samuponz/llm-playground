@@ -5,8 +5,8 @@ running locally in [Ollama](https://ollama.com). Everything runs in Docker.
 
 Status: step 3 of the [roadmap](docs/roadmap.md) done: the chat shows tokens, speed and
 context usage, warns when the context overflows, and records sessions. Now: step 4,
-core concepts, one at a time (done: tokens; next: KV cache, chat templates, sampling,
-quantization).
+core concepts, one at a time (done: tokens, chat templates, sampling; now: KV cache;
+next: quantization).
 
 ## What you need
 

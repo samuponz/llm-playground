@@ -32,7 +32,7 @@ One concept page plus a small experiment each, with numbers from this laptop:
   [04-tokens.md](04-tokens.md), [experiment 003](experiments/003-what-text-costs.md),
   `tokens.py`.
 - **KV cache**: what it stores, why context size costs memory, why it pushes layers off
-  the GPU (see [to-explore.md](to-explore.md)).
+  the GPU. [07-kv-cache.md](07-kv-cache.md); experiment 007 next.
 - ✅ **Chat templates**: how a list of messages becomes one text with special tokens.
   [05-chat-templates.md](05-chat-templates.md),
   [experiment 004](experiments/004-chat-template-check.md), `template.py`.

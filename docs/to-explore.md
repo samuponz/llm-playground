@@ -9,6 +9,18 @@ Each one is a candidate for its own doc page and visualisation.
   `llama_kv_cache: size = 448.00 MiB`, almost a third of the model's memory.
 - Questions: what is stored in it? Why does it grow with context size, even when the
   conversation is short? What do `K (f16)` and `V (f16)` mean?
+- Answered in [07-kv-cache.md](07-kv-cache.md).
+
+## Smarter KV cache eviction (step 4b)
+
+- Ollama keeps "first 4 tokens + most recent part". Research keeps tokens by how much
+  attention they get: *StreamingLLM* (attention sinks), *H2O* (heavy hitters), *SnapKV*
+  (what the question looks at). Also cheaper tokens: sliding-window layers, DeepSeek's
+  compressed KV (*multi-head latent attention*).
+- Visualisation idea: one conversation, a strip of tokens, and which ones each method
+  keeps when the window is full.
+- Open: which 4 tokens does `n_keep = 4` keep exactly (check with `tokens.py`)? Does
+  Ollama always keep the system message when it trims whole messages?
 
 ## Why the models only half fit on the 2 GB GPU
 
