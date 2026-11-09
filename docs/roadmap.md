@@ -9,8 +9,8 @@ Side questions that come up go to [to-explore.md](to-explore.md).
 | 1 | Containers and models: `ollama` + `app` services, GPU check, qwen3 models | ✅ |
 | 2 | Chat loop that keeps history (`chat.py`): the model has no memory | ✅ |
 | 3 | Make the internals visible: usage line, `/context`, overflow detection, traces | ✅ |
-| **4** | **Core concepts, hands-on** | next |
-| 5 | Tests and GitHub Actions | |
+| 4 | Core concepts, hands-on | ✅ |
+| **5** | **Tests and GitHub Actions** | next |
 | 6 | Terminal lab dashboard | |
 | 7 | Knowledge base: RAG and alternatives, measured | |
 | later | Tool calling; JavaScript visualisations for sharing | |
@@ -39,8 +39,9 @@ One concept page plus a small experiment each, with numbers from this laptop:
 - ✅ **Sampling**: temperature, top-k, top-p: why the same question gives different answers.
   [06-sampling.md](06-sampling.md), [experiment 006](experiments/006-temperature-spread.md),
   `sampling.py`.
-- **Quantization**: what `Q4_K_M` means and what it costs in quality.
-  [08-quantization.md](08-quantization.md); experiment 008 next (with a weight histogram and image).
+- ✅ **Quantization**: what `Q4_K_M` means and what it costs in quality.
+  [08-quantization.md](08-quantization.md), [experiment 008](experiments/008-quantization.md),
+  `weights.py`.
 
 ## 5. Tests and GitHub Actions
 

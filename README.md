@@ -3,10 +3,9 @@
 Learn how LLM apps work underneath by building each piece by hand, with small models
 running locally in [Ollama](https://ollama.com). Everything runs in Docker.
 
-Status: step 3 of the [roadmap](docs/roadmap.md) done: the chat shows tokens, speed and
-context usage, warns when the context overflows, and records sessions. Now: step 4,
-core concepts, one at a time (done: tokens, chat templates, sampling, KV cache;
-next: quantization).
+Status: steps 0–4 of the [roadmap](docs/roadmap.md) done: a chat that shows tokens,
+speed and context usage, and hands-on pages on tokens, chat templates, sampling, the KV
+cache and quantization. Next: step 5, tests and GitHub Actions.
 
 ## What you need
 
@@ -69,6 +68,7 @@ The first run downloads Qwen3's tokenizer (11 MB) into `models/`. See
 ```bash
 docker compose run --rm app python weights.py                       # formats and bits per weight
 docker compose run --rm app python weights.py blk.0.attn_q.weight   # one matrix
+docker compose run --rm app python weights.py blk.0.attn_q.weight --blocks   # + its blocks
 ```
 
 Reads the model file straight from Ollama's storage (mounted read-only) and shows how

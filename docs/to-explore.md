@@ -22,6 +22,16 @@ Each one is a candidate for its own doc page and visualisation.
 - Open: which 4 tokens does `n_keep = 4` keep exactly (check with `tokens.py`)? Does
   Ollama always keep the system message when it trims whole messages?
 
+## Quantization and weights (step 4e)
+
+- Why are the rows of `blk.0.attn_q.weight` so different in strength (0.25× to 2.3×
+  the typical row)? Each row is one of 16 heads × 128 numbers: position encoding (RoPE)
+  inside each head is a guess. Compare other layers and matrices with `weights.py`.
+- Decode the real Q4_K scales from the file's bytes, instead of estimating them from
+  the rebuilt values.
+- Step 1 had 14 / 29 layers on the GPU at ctx 4096, experiment 007 had 11 with the same
+  settings. Why?
+
 ## Why the models only half fit on the 2 GB GPU
 
 - Step 1 measurements (Ollama 0.40.11, context 4096, nothing else on the GPU):

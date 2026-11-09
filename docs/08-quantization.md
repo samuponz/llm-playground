@@ -29,6 +29,23 @@ recovered:   0.13   -0.31    0.04    0.27  ← small rounding errors
 Every weight is now slightly wrong. It works because there are billions of them: the
 errors are small and mostly cancel out.
 
+**A block is a group of positions, not of values:** 32 weights that sit next to each
+other in one row of the matrix. The layout is fixed, so the file only stores the
+integers and one scale per block, never "which weight belongs to which block".
+(Grouping by value exists, *codebook* quantization, but it needs a label per weight.)
+
+```
+one row of a matrix (2048 weights, in order):
+[ w0 … w31 ][ w32 … w63 ][ w64 … w95 ] …  [ w2016 … w2047 ]
+  block 1     block 2      block 3           block 64
+  scale s1    scale s2     scale s3          scale s64
+```
+
+In the real file, every weight of a block sits on one of its 16 levels, and the grids
+differ a lot between blocks ([experiment 008](experiments/008-quantization.md)):
+
+![three real blocks](images/qwen3-1.7b-blk.0.attn_q.weight-blocks.png)
+
 ## Why each block has its own scale: dynamic range
 
 Weights span a wide range: mostly tiny values, plus a few large **outliers**. One scale
@@ -43,7 +60,15 @@ stored:      0       0      0    …     7      ← the small weights are wiped 
 
 Inside a small block the range is usually narrow, so a per-block scale spends the few
 bits where the values actually are. An outlier only costs precision inside its own
-block. Like HDR photography: expose each region separately.
+block (the right-hand block above: one weight at 0.66, the other 31 squeezed onto ~5
+levels). Like HDR photography: expose each region separately.
+
+Because blocks run along rows, the shape of the outliers matters:
+
+| Outlier | Effect |
+|---|---|
+| A strong **row** | all its blocks get bigger scales together; inside each block values are similar. Harmless. |
+| A strong **column** (one input dimension) | one big value in a block of *every* row: each loses precision for its other 31 weights. Harmful. |
 
 The trade-off: each scale costs bits too. Smaller blocks are more precise but carry more
 scales. 32 is the usual compromise.
@@ -171,4 +196,15 @@ range is only known while the model runs.
 | Chosen | when the file is made (in the model's tag) | when the server starts (`.env`) |
 | Same trick? | yes: blocks + scales | yes |
 
-Next, experiment 008: size, speed and answers for Q4_K_M vs Q8_0 on this laptop.
+## Q4 vs Q8 on this laptop
+
+[Experiment 008](experiments/008-quantization.md), `qwen3:1.7b`:
+
+| | Q4_K_M | Q8_0 |
+|---|---|---|
+| File | 1.36 GB | 2.22 GB |
+| Layers on GPU | 16 / 29 | 9 / 29 |
+| Writing speed | ~15.8 tokens/s | ~10.4 tokens/s |
+| 12 fact questions | 12 / 12 | 11 / 12 |
+
+Q8 was not visibly better and 1.5× slower. Q4_K_M stays the right choice here.
