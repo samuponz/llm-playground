@@ -34,6 +34,8 @@ services:
     volumes:
       # The project folder is mounted, so code changes need no rebuild
       - .:/app
+      # Ollama's downloaded models, read-only: weights.py reads the model files directly
+      - ollama_models:/ollama:ro
     environment:
       LLM_BASE_URL: ${LLM_BASE_URL:-http://ollama:11434/v1}
       LLM_MODEL: ${LLM_MODEL:-qwen3:4b-q4_K_M}
