@@ -51,19 +51,22 @@ scales. 32 is the usual compromise.
 ## What weights look like
 
 Within one matrix, weights form a **bell shape centred on zero**, with heavier tails than
-a perfect bell curve:
+a perfect bell curve. A real one, the first attention matrix of `qwen3:1.7b`
+(`python weights.py blk.0.attn_q.weight`):
 
-```
-how many
-weights
-   │            ▆█▆
-   │           ▅███▅
-   │          ▃█████▃
-   │        ▂▅███████▅▂
-   │  ·  ▁▂▄███████████▄▂▁  ·        ·  ← a few far-out outliers
-   └──────────────────────────────────── value
-        -0.1      0      +0.1          (illustrative; measured in experiment 008)
-```
+![histogram of a real weight matrix](images/qwen3-1.7b-blk.0.attn_q.weight-hist.png)
+
+Typical spread (standard deviation) 0.035; the biggest weight is 0.66, **19× the
+spread**. 0.62% of weights are beyond 3× the spread, against 0.27% for a perfect bell
+curve: the log-scale panel shows those tails.
+
+The same matrix as an image, one pixel per weight (blue negative, red positive):
+
+![image of a real weight matrix](images/qwen3-1.7b-blk.0.attn_q.weight-image.png)
+
+Mostly noise, plus **horizontal stripes**: some rows are much stronger or fainter than
+others (from 2.3× to 0.25× the typical row). Each row produces one output number, so
+the model clearly uses some outputs more than others.
 
 | Property | Why it matters for quantization |
 |---|---|
@@ -91,12 +94,12 @@ weights
 |---|---|
 | **Q4** | about 4 bits per weight |
 | **K** | "k-quants": blocks of 256 split into 8 sub-blocks of 32, each with its own scale and offset, stored compressed in 6 bits |
-| **M** | "medium" mix: the most sensitive matrices are kept at 6 bits (`Q6_K`), the rest at 4 |
+| **M** | "medium" mix: the most sensitive matrices are kept at 6 bits (`Q6_K`) or more, the rest at 4 |
 
 A value is rebuilt as `integer × scale + offset`. The offset shifts the range for blocks
 not centred on zero.
 
-### Why about 4.8 bits, not 4
+### Why more than 4 bits
 
 The scales cost bits too. One `Q4_K` block of 256 weights:
 
@@ -107,9 +110,18 @@ The scales cost bits too. One `Q4_K` block of 256 weights:
                                         total = 1152 bits ÷ 256 = 4.5 bits per weight
 ```
 
-The "M" mix adds the `Q6_K` matrices (about 6.6 bits), so the average is roughly 4.8.
-Divide by 8 to get bytes: 0.6 bytes per weight × 4.0 billion weights ≈ **2.4 GB**. The
-file is 2.5 GB.
+Then the "M" mix keeps some matrices bigger. Measured in the real files with
+[`weights.py`](../weights.py):
+
+| Model | Q4_K (4.50 bits) | Q6_K (6.56 bits) | F16 (16 bits) | Average | File |
+|---|---|---|---|---|---|
+| `qwen3:1.7b` | 73% of weights | 24% | 3% | **5.33 bits** | 1.36 GB |
+| `qwen3:4b-q4_K_M` | 77% | 21% | 2% | **5.20 bits** | 2.61 GB |
+
+So "Q4" models average over 5 bits. The F16 part is the `attn_v` matrices, kept at full
+precision. Small models pay more: in the 1.7B, the output matrix alone (151,936 tokens ×
+2048, in `Q6_K`) is 15% of all weights. Bytes = bits ÷ 8: 4.0 billion × 5.20 ÷ 8 =
+2.61 GB, the file size.
 
 ## Why it also makes the model faster
 
@@ -124,7 +136,7 @@ memory **and** buys speed, for the same reason.
 |---|---|---|---|
 | F16 (original) | 16 | ~8 GB | reference |
 | Q8_0 | ~8.5 | ~4.3 GB | practically the same |
-| **Q4_K_M** | ~4.8 | ~2.5 GB | small loss; the usual best trade-off |
+| **Q4_K_M** | 5.2 (measured) | 2.6 GB | small loss; the usual best trade-off |
 | Q2_K | ~3 | ~1.7 GB | noticeably worse: confused answers, broken facts |
 
 Small models suffer more: a 1.7B has less spare capacity to absorb the errors than a 70B.
@@ -159,5 +171,4 @@ range is only known while the model runs.
 | Chosen | when the file is made (in the model's tag) | when the server starts (`.env`) |
 | Same trick? | yes: blocks + scales | yes |
 
-Measured on this laptop: experiment 008 (next): size, speed and answers for Q4_K_M vs
-Q8_0, plus a histogram and an image of a real weight matrix.
+Next, experiment 008: size, speed and answers for Q4_K_M vs Q8_0 on this laptop.
