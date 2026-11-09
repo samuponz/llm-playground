@@ -119,8 +119,8 @@ put 21 layers on the GPU instead of 14, and made writing ~40% faster.
 `LLM_CONTEXT_SIZE=4096` and Ollama builds a cache with 4096 empty rows. The model can
 only "see" what is in the cache, so "the context window" = "what is in the cache now".
 
-One ceiling on top: the model was trained on texts up to a maximum length (32,768
-tokens for Qwen3). Past that it degrades into nonsense, so a bigger cache would be
+One ceiling on top: the model was trained on texts up to a maximum length (40,960
+tokens for `qwen3:1.7b`, shown as `context_length` by `ollama show --verbose`). Past that it degrades into nonsense, so a bigger cache would be
 useless.
 
 Attention needs one more piece of memory while reading a prompt: a temporary table of
@@ -200,12 +200,49 @@ Ollama keeps "the start + the most recent part". Other approaches exist, at thre
 Frontier chat apps have contexts of hundreds of thousands of tokens and mostly work at
 the app level. What closed models do inside their engines is not public.
 
+## How big is a token inside the model?
+
+The context exists twice, in two very different sizes:
+
+| Form | One token | 4096 tokens | Who keeps it |
+|---|---|---|---|
+| Text / token ID | ~4 bytes | ~16 KB | the app (`chat.py` keeps the history as text) |
+| Embedding (first vector) | 2048 numbers ≈ 4 KiB | | computed, then passed on |
+| KV cache | K + V, 1024 numbers each, × 28 layers ≈ 112 KiB | 448 MiB | the model, while it runs |
+
+Like CNN feature maps, the inside representation is much bigger than the raw input.
+The difference: a CNN throws each layer's maps away once the next layer is done; here
+every layer's K and V must be kept, because every future token looks back at them.
+
+When the cache is cut, the app's text is still complete: experiment 002's history still
+had "My name is Sam"; the model no longer did.
+
+## Summary: the memory of a running model
+
+```
+weights (fixed per model)  +  KV cache (fixed by context size)  +  small working buffers
+└──────────────── split by layer between GPU and CPU RAM ────────────────┘
+```
+
+The cache is reserved at full size when the model loads; a growing conversation fills
+it, it does not grow it.
+
 ## Knobs that shrink the cache
 
 | Knob | Effect | Cost |
 |---|---|---|
 | Smaller context (`LLM_CONTEXT_SIZE=2048`) | cache ÷ 2 | the model sees less conversation |
-| `OLLAMA_KV_CACHE_TYPE=q8_0` | 1 byte per number instead of 2: cache ÷ 2 | tiny quality loss; needs flash attention on |
-| `OLLAMA_FLASH_ATTENTION=1` | leaner attention computation | none in theory; support varies by GPU |
+| `OLLAMA_KV_CACHE_TYPE=q8_0` | ~1 byte per number instead of 2: cache ÷ 2 | tiny quality loss; needs flash attention on |
+| `OLLAMA_FLASH_ATTENTION=true` | leaner attention computation | none in theory; support varies by GPU |
 
-Measured on this laptop: experiment 007 (next).
+Measured on this laptop ([experiment 007](experiments/007-kv-cache-size.md), `qwen3:1.7b`,
+ctx 4096):
+
+| Setting | KV cache | Layers on GPU | Writing speed |
+|---|---|---|---|
+| default | 448 MiB | 11 / 29 | 16.5 tokens/s |
+| flash attention | 448 MiB | 14 / 29 | 18.1 tokens/s |
+| flash attention + `q8_0` | 238 MiB | 16 / 29 | 18.5 tokens/s |
+
+More GPU layers help less than you'd guess (+12% here): writing a token means reading
+all the weights, and the MX150's memory is not much faster than the laptop's RAM.
