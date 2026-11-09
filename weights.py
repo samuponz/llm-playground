@@ -2,6 +2,7 @@
 
     docker compose run --rm app python weights.py                       # the whole file
     docker compose run --rm app python weights.py blk.0.attn_q.weight   # one matrix
+    docker compose run --rm app python weights.py blk.0.attn_q.weight --blocks  # + blocks
     docker compose run --rm app python weights.py blk.0.attn_q.weight --model qwen3:4b-q4_K_M
 
 The model file is read straight from Ollama's storage (mounted read-only at /ollama).
@@ -119,10 +120,68 @@ def pictures(w, title, prefix):
     print(f"saved {prefix}-hist.png and {prefix}-image.png")
 
 
+def blocks(w, title, prefix):
+    """Show the Q4_K blocks: 32 neighbouring weights in a row share one scale.
+
+    Inside a block, each weight is rebuilt as integer x scale + offset, with the integer
+    between 0 and 15. So a block can only hold 16 evenly spaced values; the distance
+    between two of them (the "step") is the block's scale. We estimate it from the
+    rebuilt values: (max - min) / 15.
+    """
+    rows, cols = w.shape
+    b = w.reshape(rows, cols // 32, 32)            # rows x blocks per row x 32 weights
+    step = (b.max(axis=2) - b.min(axis=2)) / 15
+    levels_used = np.array([[len(np.unique(blk)) for blk in row] for row in b])
+    print(f"blocks: {step.size:,} ({rows} rows x {cols // 32} blocks of 32)")
+    print(f"step: median {np.median(step):.4f}, smallest {step.min():.4f}, "
+          f"biggest {step.max():.4f} ({step.max() / step.min():.0f}x the smallest)")
+    print(f"distinct values per block: at most {levels_used.max()} (16 allowed), "
+          f"median {np.median(levels_used):.0f}")
+
+    # 1. Scale map: one pixel per block
+    fig, (a, h) = plt.subplots(1, 2, figsize=(12, 5), gridspec_kw={"width_ratios": [1, 1]})
+    im = a.imshow(step, cmap="viridis", aspect="auto", interpolation="nearest")
+    a.set_title("step size of each block (one pixel = 32 weights)")
+    a.set_xlabel("block along the row")
+    a.set_ylabel("row")
+    fig.colorbar(im, ax=a, label="step")
+    h.hist(step.ravel(), bins=100, color="#55a868")
+    h.set_title("how the steps are spread")
+    h.set_xlabel("step")
+    h.set_ylabel("how many blocks")
+    fig.suptitle(title)
+    fig.tight_layout()
+    fig.savefig(f"{prefix}-scales.png", dpi=110)
+    plt.close(fig)
+
+    # 2. Single blocks up close: the faintest, a typical and the strongest step
+    order = np.argsort(step.ravel())
+    picks = {"smallest step": order[0], "typical step": order[len(order) // 2],
+             "biggest step": order[-1]}
+    fig, axes = plt.subplots(1, 3, figsize=(13, 4))  # own scale each: the grids differ 38x
+    for ax, (label, flat) in zip(axes, picks.items()):
+        r, c = divmod(int(flat), cols // 32)
+        values = b[r, c]
+        low = values.min()
+        for k in range(16):                         # the 16 allowed values
+            ax.axhline(low + k * step[r, c], color="#cccccc", linewidth=0.8)
+        ax.plot(range(32), values, "o", color="#c44e52")
+        ax.set_title(f"{label}: row {r}, block {c}\nstep {step[r, c]:.4f}")
+        ax.set_xlabel("position in the block (0-31)")
+    axes[0].set_ylabel("weight value")
+    fig.suptitle(f"{title}: every weight sits on one of 16 levels")
+    fig.tight_layout()
+    fig.savefig(f"{prefix}-blocks.png", dpi=110)
+    plt.close(fig)
+    print(f"saved {prefix}-scales.png and {prefix}-blocks.png")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("tensor", nargs="?", help="name of one matrix, e.g. blk.0.attn_q.weight")
     parser.add_argument("--model", default="qwen3:1.7b")
+    parser.add_argument("--blocks", action="store_true",
+                        help="also show the blocks and their scales (Q4_K matrices only)")
     args = parser.parse_args()
 
     path = model_file(args.model)
@@ -143,7 +202,13 @@ def main():
     print(f"{t.name}, stored as {t.tensor_type.name}")
     stats(w)
     prefix = f"{IMAGES}/{args.model.replace(':', '-')}-{t.name}"
-    pictures(w, f"{args.model}  {t.name}  ({t.tensor_type.name})", prefix)
+    title = f"{args.model}  {t.name}  ({t.tensor_type.name})"
+    pictures(w, title, prefix)
+    if args.blocks:
+        if t.tensor_type.name == "Q4_K":
+            blocks(w, title, prefix)
+        else:
+            print(f"--blocks only knows Q4_K; this matrix is {t.tensor_type.name}")
 
 
 if __name__ == "__main__":
