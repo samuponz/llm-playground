@@ -9,8 +9,8 @@ Side questions that come up go to [to-explore.md](to-explore.md).
 | 1 | Containers and models: `ollama` + `app` services, GPU check, qwen3 models | ✅ |
 | 2 | Chat loop that keeps history (`chat.py`): the model has no memory | ✅ |
 | 3 | Make the internals visible: usage line, `/context`, overflow detection, traces | ✅ |
-| 4 | Core concepts, hands-on | ✅ |
-| **5** | **Tests and GitHub Actions** | next |
+| **4** | **Core concepts, hands-on** (4f in progress) | ✅ 4a–4e |
+| 5 | Tests and GitHub Actions | next |
 | 6 | Terminal lab dashboard | |
 | 7 | Knowledge base: RAG and alternatives, measured | |
 | later | Tool calling; JavaScript visualisations for sharing | |
@@ -42,6 +42,10 @@ One concept page plus a small experiment each, with numbers from this laptop:
 - ✅ **Quantization**: what `Q4_K_M` means and what it costs in quality.
   [08-quantization.md](08-quantization.md), [experiment 008](experiments/008-quantization.md),
   `weights.py`.
+- **Confidence across an answer** (4f, from `LLMideas.md`): the probability of every
+  token, live, coloured green (sure) to red (unsure). Fact vs wording, with vs without
+  context (prepares step 7), and calibration: is the model sure when it is wrong?
+  `confidence.py`; concept page and experiment 009 next.
 
 ## 5. Tests and GitHub Actions
 

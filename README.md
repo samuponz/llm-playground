@@ -75,6 +75,17 @@ Reads the model file straight from Ollama's storage (mounted read-only) and show
 the weights are stored. For one matrix it prints statistics and saves a histogram and an
 image to `docs/images/`. See [docs/08-quantization.md](docs/08-quantization.md).
 
+## See the model's confidence
+
+```bash
+docker compose run --rm app python confidence.py "In che anno è nato Giacomo Leopardi?"
+```
+
+Streams the answer with each token coloured by how probable it was (green = sure,
+red = unsure), then lists the least sure tokens and what else the model considered.
+Confidence is not correctness: a model can be sure and wrong. Each run is saved to
+`traces/`.
+
 ## Useful commands
 
 | Command | What it does |
