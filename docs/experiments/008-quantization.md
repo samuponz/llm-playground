@@ -54,6 +54,13 @@ evenly spaced values; the spacing (the "step") is its scale.
   row stripes: strong rows got coarse grids, faint rows fine ones.
 - Every block uses at most 16 distinct values (median 13): the 4-bit grid is real.
 
+![blocks outlined](../images/qwen3-1.7b-blk.0.attn_q.weight-grid.png)
+
+- A 12-row window around the biggest outlier, blocks outlined. The outlier (+0.66,
+  circled) lights up its own block only (yellow); the neighbouring blocks in the same
+  row stay fine-grained. Row 1970 is also a strong row: all its blocks are a bit
+  coarser (teal).
+
 ![single blocks](../images/qwen3-1.7b-blk.0.attn_q.weight-blocks.png)
 
 - Every weight sits exactly on one of its block's 16 levels.

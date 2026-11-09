@@ -41,6 +41,12 @@ one row of a matrix (2048 weights, in order):
   scale s1    scale s2     scale s3          scale s64
 ```
 
+The real thing: a 12-row window of the matrix, each block of 32 outlined. Top: the
+weights. Bottom: each block filled with its step. One outlier (+0.66, circled) makes its
+whole block's grid coarse:
+
+![blocks outlined on a real matrix](images/qwen3-1.7b-blk.0.attn_q.weight-grid.png)
+
 In the real file, every weight of a block sits on one of its 16 levels, and the grids
 differ a lot between blocks ([experiment 008](experiments/008-quantization.md)):
 

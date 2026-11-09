@@ -173,7 +173,43 @@ def blocks(w, title, prefix):
     fig.tight_layout()
     fig.savefig(f"{prefix}-blocks.png", dpi=110)
     plt.close(fig)
-    print(f"saved {prefix}-scales.png and {prefix}-blocks.png")
+
+    # 3. The blocks drawn on the matrix: a small window around the biggest outlier,
+    # each block of 32 outlined. Top: the weights. Bottom: each block filled with its step.
+    r0, c0 = divmod(int(order[-1]), cols // 32)          # the block with the biggest step
+    top = min(max(r0 - 6, 0), rows - 12)                 # 12 rows ...
+    first = min(max(c0 - 2, 0), cols // 32 - 5)          # ... x 5 blocks (160 columns)
+    window = w[top:top + 12, first * 32:(first + 5) * 32]
+    steps = np.repeat(step[top:top + 12, first:first + 5], 32, axis=1)
+    std = w.std()
+    fig, (a, s) = plt.subplots(2, 1, figsize=(13, 6.5))
+    a.imshow(window, cmap="RdBu_r", vmin=-3 * std, vmax=3 * std, interpolation="nearest",
+             aspect="auto")
+    a.set_title("weights (blue negative, red positive); each rectangle = one block of 32")
+    oi, oj = np.unravel_index(np.argmax(np.abs(window)), window.shape)  # the outlier
+    a.plot(oj, oi, "o", markersize=14, markerfacecolor="none", markeredgecolor="gold",
+           markeredgewidth=2.5)
+    a.annotate(f"outlier {window[oi, oj]:+.2f}", (oj, oi), xytext=(oj + 6, oi - 1.2),
+               color="black", fontsize=9, annotation_clip=False)
+    im = s.imshow(steps, cmap="viridis", interpolation="nearest", aspect="auto")
+    s.set_title("the same blocks, filled with their step (scale)")
+    fig.colorbar(im, ax=s, orientation="horizontal", fraction=0.08, pad=0.25, label="step")
+    for ax in (a, s):
+        for i in range(12):
+            for j in range(5):
+                ax.add_patch(plt.Rectangle((j * 32 - 0.5, i - 0.5), 32, 1, fill=False,
+                                           edgecolor="black", linewidth=0.8))
+        ax.set_xticks([j * 32 for j in range(6)])
+        ax.set_xticklabels([str((first + j) * 32) for j in range(6)])
+        ax.set_yticks(range(12))
+        ax.set_yticklabels([str(top + i) for i in range(12)], fontsize=7)
+        ax.set_xlabel("column")
+        ax.set_ylabel("row")
+    fig.suptitle(f"{title}: rows {top}-{top + 11}, columns {first * 32}-{(first + 5) * 32 - 1}")
+    fig.tight_layout()
+    fig.savefig(f"{prefix}-grid.png", dpi=110)
+    plt.close(fig)
+    print(f"saved {prefix}-scales.png, {prefix}-blocks.png and {prefix}-grid.png")
 
 
 def main():
