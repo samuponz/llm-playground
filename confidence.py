@@ -93,8 +93,14 @@ def summary(tokens):
     print(f"{len(tokens)} tokens: " +
           ", ".join(f"{c} {label}" for c, (_, label, _) in zip(counts, SCALE)))
 
-    unsure = sorted(tokens, key=lambda t: t["p"])[:5]
-    print("\nLeast sure tokens (what else the model considered):")
+    print()
+    least_sure(tokens)
+
+
+def least_sure(tokens, n=5):
+    """Print the n tokens the model was least sure of, with the top of its list."""
+    unsure = sorted(tokens, key=lambda t: t["p"])[:n]
+    print("Least sure tokens (what else the model considered):")
     for t in unsure:
         others = ", ".join(f"{a!r} {p:.0%}" for a, p in t["alternatives"][:4])
         print(f"  {t['token']!r:<14} {t['p']:>5.0%}   entropy {entropy(t['alternatives']):.1f} bits"

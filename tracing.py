@@ -32,9 +32,11 @@ class Trace:
         with open(self.path, "a", encoding="utf-8") as f:
             f.write(json.dumps(line, ensure_ascii=False) + "\n")
 
-    def turn(self, question, answer, thinking, stats, warning):
-        """One answered question: what is new in the history, and everything measured."""
+    def turn(self, question, answer, thinking, stats, warning, tokens=None):
+        """One answered question: what is new in the history, and everything measured.
+        With /confidence on, also every answer token with its probability and top 20."""
         self.turns += 1
+        extra = {"tokens": tokens} if tokens else {}
         self.write(
             "turn",
             turn=self.turns,
@@ -47,6 +49,7 @@ class Trace:
                 "context_used": context_used(stats),
             },
             warning=warning,
+            **extra,
         )
 
 
@@ -57,5 +60,5 @@ class NoTrace:
     def write(self, event, **data):
         pass
 
-    def turn(self, question, answer, thinking, stats, warning):
+    def turn(self, question, answer, thinking, stats, warning, tokens=None):
         pass

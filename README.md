@@ -49,8 +49,9 @@ docker compose run --rm -e LLM_SYSTEM="Always answer in Italian." app  # add a s
 
 After each answer the chat shows tokens read and written, speed, and how full the
 context window is. Inside the chat: `/history` shows exactly what is sent to the model,
-`/context` shows the context window, `/clear` forgets the conversation, `/bye` (or
-Ctrl+D) quits. Each session is saved to `traces/` (not committed; turn off with
+`/context` shows the context window, `/confidence` colours each answer token by how sure
+the model was ([docs/04f-confidence.md](docs/04f-confidence.md)), `/unsure` lists the least
+sure tokens of the last answer, `/clear` forgets the conversation, `/bye` (or Ctrl+D) quits. Each session is saved to `traces/` (not committed; turn off with
 `LLM_TRACE=false`): see [docs/traces.md](docs/traces.md).
 
 ## See the tokens

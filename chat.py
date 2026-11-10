@@ -9,15 +9,18 @@ and how full the context window is.
 Set LLM_SYSTEM to start every chat with a system message (instructions for the model).
 
 Commands: /history (show what is sent), /context (context window usage),
-/clear (forget everything), /bye (quit).
+/confidence (colour each answer token by how sure the model was, on/off),
+/unsure (the least sure tokens of the last answer), /clear (forget everything), /bye (quit).
 """
 import json
+import math
 import readline  # noqa: F401  (makes input() support arrow keys and line editing)
 import time
 
 from openai import APIConnectionError, NotFoundError, OpenAI
 
 import config
+from confidence import SCALE, colour, least_sure, show
 from stats import TurnStats, context_report, context_warning, cut_warning, usage_line
 from tracing import NoTrace, Trace
 
@@ -28,13 +31,17 @@ RESET = "\033[0m"
 client = OpenAI(base_url=config.BASE_URL, api_key="ollama")
 
 
-def ask(messages):
+def ask(messages, confidence=False):
     """Send the whole conversation and print the answer as it streams in.
 
-    Returns the answer text, the thinking text ("" when off) and the turn's numbers.
+    With confidence on, each answer token is printed on its colour (see confidence.py).
+    Returns the answer text, the thinking text ("" when off), the turn's numbers, and
+    the answer tokens with their probabilities ([] when confidence is off).
     """
     # Thinking is on by default in Qwen3; "none" turns it off
     options = {} if config.THINKING else {"reasoning_effort": "none"}
+    if confidence:  # also send back each token's probability and the top 20 alternatives
+        options |= {"logprobs": True, "top_logprobs": 20}
     sent_at = time.perf_counter()
     stream = client.chat.completions.create(
         model=config.MODEL,
@@ -46,6 +53,7 @@ def ask(messages):
 
     answer = ""
     thinking = ""
+    tokens = []
     in_thinking = False
     first_at = None
     usage = None
@@ -72,7 +80,15 @@ def ask(messages):
             if in_thinking:
                 print(RESET + "\n")
                 in_thinking = False
-            print(delta.content, end="", flush=True)
+            logprobs = chunk.choices[0].logprobs
+            if confidence and logprobs and logprobs.content:
+                for t in logprobs.content:  # one chunk may hold several tokens
+                    p = math.exp(t.logprob)  # log-probability -> probability
+                    alternatives = [(a.token, math.exp(a.logprob)) for a in t.top_logprobs]
+                    tokens.append({"token": t.token, "p": p, "alternatives": alternatives})
+                    show(t.token, p)
+            else:
+                print(delta.content, end="", flush=True)
             answer += delta.content
 
     done_at = time.perf_counter()
@@ -85,7 +101,11 @@ def ask(messages):
         first_token_s=first_at - sent_at,
         writing_s=done_at - first_at,
     )
-    return answer, thinking, stats
+    return answer, thinking, stats, tokens
+
+
+def legend():
+    return "  ".join(f"{colour(lowest + 0.001)} {label} {RESET}" for lowest, label, _ in SCALE)
 
 
 def main():
@@ -93,7 +113,7 @@ def main():
     print(f"Chatting with {config.MODEL} (thinking {thinking}).")
     if config.SYSTEM:
         print(f"System message: {config.SYSTEM}")
-    print("Commands: /history  /context  /clear  /bye")
+    print("Commands: /history  /context  /confidence  /unsure  /clear  /bye")
 
     settings = {"model": config.MODEL, "base_url": config.BASE_URL,
                 "context_size": config.CONTEXT_SIZE, "thinking_enabled": config.THINKING,
@@ -107,6 +127,8 @@ def main():
     messages = list(start)
     last_stats = None  # numbers from the last answered request, for /context
     was_cut = False  # has the server already dropped part of this conversation?
+    confidence = False  # colour answers by token probability? (/confidence)
+    last_tokens = []  # the last answer's tokens with their probabilities, for /unsure
 
     while True:
         try:
@@ -122,6 +144,7 @@ def main():
         if text == "/clear":
             messages[:] = start  # keep the system message: it belongs to the app, not the chat
             last_stats = None  # the numbers described a history that no longer exists
+            last_tokens = []
             was_cut = False
             trace.write("clear")
             print("(history cleared: the model now knows nothing about this chat)")
@@ -132,11 +155,23 @@ def main():
         if text == "/context":
             print(context_report(last_stats, config.CONTEXT_SIZE, messages))
             continue
+        if text == "/confidence":
+            confidence = not confidence
+            print(f"(confidence colours {'on' if confidence else 'off'})")
+            if confidence:
+                print(legend())
+            continue
+        if text == "/unsure":
+            if last_tokens:
+                least_sure(last_tokens)
+            else:
+                print("(no probabilities yet: turn on /confidence, then ask something)")
+            continue
 
         messages.append({"role": "user", "content": text})
         previous_stats = last_stats
         try:
-            answer, thinking, last_stats = ask(messages)
+            answer, thinking, last_stats, last_tokens = ask(messages, confidence)
         except KeyboardInterrupt:
             print(RESET + "\n(answer interrupted)")
             messages.pop()  # forget the unanswered question
@@ -163,7 +198,7 @@ def main():
         warning = cut or context_warning(last_stats, config.CONTEXT_SIZE)
         if warning:
             print(warning)
-        trace.turn(text, answer, thinking, last_stats, warning)
+        trace.turn(text, answer, thinking, last_stats, warning, last_tokens)
 
     trace.write("session_end", turns=len([m for m in messages if m["role"] == "assistant"]))
 

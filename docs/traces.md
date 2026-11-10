@@ -51,6 +51,7 @@ A `turn` event:
 | `thinking` | the reasoning text, `""` when thinking is off (not kept in the history) |
 | `stats` | the numbers shown after each answer; see [03-tokens-and-context.md](03-tokens-and-context.md) |
 | `warning` | the ⚠ or ✂ text shown, or `null` |
+| `tokens` | only with `/confidence` on: every answer token with its probability `p` and its top 20 `alternatives` (see [04f-confidence.md](04f-confidence.md)) |
 
 ## Only what is new
 

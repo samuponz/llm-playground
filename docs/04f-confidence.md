@@ -23,6 +23,24 @@ saved to `traces/`.
 **Confidence is not correctness.** The model has no access to the truth, only to its own
 list. Usually the two go together; the examples below show when they don't.
 
+## In the chat
+
+The same colours work in [`chat.py`](../chat.py): `/confidence` turns them on or off,
+`/unsure` lists the least sure tokens of the last answer. With confidence on, each turn
+in the [trace](traces.md) also saves every token with its top 20 alternatives.
+
+```
+>>> /confidence
+>>> In one sentence: where was Giacomo Leopardi born, and in which year?
+Giacomo Leopardi was born in Livorno, Italy, in 1798.
+>>> /unsure
+Least sure tokens (what else the model considered):
+  ' Liv'           63%   entropy 2.1 bits   list: ' Liv' 63%, ' Tur' 4%, ' Naples' 4%, ' Florence' 3%
+```
+
+(Wrong again: he was born in Recanati. A different wrong town each time, and this time
+only yellow.)
+
 ## What the colours show, and what they don't
 
 The model writes one token at a time, each chosen from a probability list that depends
@@ -141,9 +159,7 @@ calibrated.
 
 ## Ideas to continue
 
-- **In the chat**: a `/confidence` toggle in `chat.py` to colour every answer, and `/unsure`
-  to list the least sure tokens of the last answer. Later, the same colours in the
-  step 6 dashboard.
+- The same colours in the step 6 dashboard.
 - **Calibration**: over many questions, how often is a wrong fact red, and how often
   green?
 - The saved runs in `traces/` hold every token with its alternatives: raw material for a
