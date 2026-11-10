@@ -34,11 +34,15 @@ SCALE = [
 RESET = "\033[0m"
 
 
+def background(p):
+    """The (red, green, blue) background colour for probability p."""
+    return next(rgb for lowest, _, rgb in SCALE if p >= lowest)
+
+
 def colour(p):
     """Terminal code for black text on the background matching probability p."""
-    for lowest, _, (r, g, b) in SCALE:
-        if p >= lowest:
-            return f"\033[48;2;{r};{g};{b}m\033[38;2;0;0;0m"
+    r, g, b = background(p)
+    return f"\033[48;2;{r};{g};{b}m\033[38;2;0;0;0m"
 
 
 def show(token, p):

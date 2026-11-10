@@ -1,13 +1,7 @@
 """The colour scale from 4f and the entropy of a probability list."""
 import pytest
 
-from confidence import SCALE, colour, entropy
-
-
-def background(p):
-    """The (red, green, blue) background colour that probability p gets."""
-    return next(rgb for lowest, _, rgb in SCALE if p >= lowest)
-
+from confidence import SCALE, background, colour, entropy
 
 GREEN, YELLOW, ORANGE, RED = (rgb for _, _, rgb in SCALE)
 

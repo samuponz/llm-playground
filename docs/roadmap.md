@@ -12,7 +12,7 @@ Page file names follow these steps; for the order to read them in, see [README.m
 | 3 | Make the internals visible: usage line, `/context`, overflow detection, traces | ✅ |
 | 4 | Core concepts, hands-on | ✅ |
 | 5 | Tests and GitHub Actions | ✅ |
-| **6** | **Terminal lab dashboard** (6a done) | in progress |
+| **6** | **Terminal lab dashboard** (6a done, F2 colours) | in progress |
 | 7 | Knowledge base: RAG and alternatives, measured | |
 | later | Tool calling; JavaScript visualisations for sharing | |
 
@@ -72,7 +72,7 @@ Decisions (2026-11-10):
   usage and VRAM, in `docker-compose.gpu.yml`.
 
 Sub-steps: 6a skeleton (chat, last-turn numbers) · 6b machine panel (CPU, RAM, GPU,
-GPU/CPU split) · 6c controls (temperature, thinking, context size, confidence) ·
+GPU/CPU split) · 6c controls (temperature, thinking, context size; confidence colours already on F2) ·
 6d history editing · 6e traces, tests, concept page.
 
 ## 7. Knowledge base: RAG and alternatives, measured

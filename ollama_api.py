@@ -9,6 +9,7 @@ two things the OpenAI-style one doesn't:
 No extra package: Python's urllib reads the answer line by line as it streams.
 """
 import json
+import math
 import urllib.request
 
 import config
@@ -17,13 +18,18 @@ import config
 SERVER = config.BASE_URL.removesuffix("/v1")
 
 
-def stream_chat(messages, num_ctx, think, temperature=None):
+def stream_chat(messages, num_ctx, think, temperature=None, top_logprobs=0):
     """Send the conversation; yield ("thinking", text), ("content", text) as the
-    answer streams, then ("done", numbers) once at the end."""
+    answer streams, then ("done", numbers) once at the end.
+
+    With top_logprobs > 0, each answer piece also comes with its tokens:
+    ("tokens", [{"token", "p", "alternatives"}, ...]), as in confidence.py."""
     options = {"num_ctx": num_ctx}
     if temperature is not None:
         options["temperature"] = temperature
     body = {"model": config.MODEL, "messages": messages, "think": think, "options": options}
+    if top_logprobs:
+        body |= {"logprobs": True, "top_logprobs": top_logprobs}
     request = urllib.request.Request(f"{SERVER}/api/chat", data=json.dumps(body).encode())
     with urllib.request.urlopen(request) as response:
         for line in response:  # one JSON object per line
@@ -35,8 +41,18 @@ def stream_chat(messages, num_ctx, think, temperature=None):
                 yield "thinking", message["thinking"]
             if message.get("content"):
                 yield "content", message["content"]
+                if chunk.get("logprobs"):
+                    yield "tokens", [probabilities(t) for t in chunk["logprobs"]]
             if chunk.get("done"):
                 yield "done", chunk
+
+
+def probabilities(logprob):
+    """One token from Ollama's logprobs, in the format confidence.py uses."""
+    return {"token": logprob["token"],
+            "p": math.exp(logprob["logprob"]),  # log-probability -> probability
+            "alternatives": [(a["token"], math.exp(a["logprob"]))
+                             for a in logprob.get("top_logprobs", [])]}
 
 
 def timings(done):

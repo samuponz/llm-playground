@@ -95,7 +95,9 @@ docker compose run --rm app python dashboard.py
 
 A full-screen terminal version of the chat, with the numbers of each turn on the side:
 tokens read (and how many came from the cache), loading, reading and writing times,
-context fill. Enter sends, Ctrl+L clears the history, Ctrl+Q quits.
+context fill. F2 colours each answer token by how sure the model was
+([docs/04f-confidence.md](docs/04f-confidence.md)). Enter sends, Ctrl+L clears the history,
+Ctrl+Q quits.
 
 ## Run the tests
 

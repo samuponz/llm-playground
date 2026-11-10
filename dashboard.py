@@ -18,12 +18,27 @@ from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.widgets import Footer, Input, Static
 
 import config
+from confidence import SCALE, background
 from ollama_api import SERVER, stream_chat, timings
 from stats import TurnStats, context_bar, context_warning, cut_warning
 
 
 class Message(Static):
     """One message in the chat panel."""
+
+
+def style(p):
+    """Black text on the background colour for probability p (scale from confidence.py)."""
+    r, g, b = background(p)
+    return f"black on rgb({r},{g},{b})"
+
+
+def coloured(tokens):
+    """The answer so far, each token on its colour."""
+    text = Text()
+    for t in tokens:
+        text.append(t["token"], style=style(t["p"]))
+    return text
 
 
 def explain(error):
@@ -47,13 +62,15 @@ class Dashboard(App):
     .thinking { color: $text-muted; }
     .note  { color: $warning; }
     """
-    BINDINGS = [("ctrl+l", "clear", "Clear history"), ("ctrl+q", "quit", "Quit")]
+    BINDINGS = [("f2", "toggle_confidence", "Confidence colours"),
+                ("ctrl+l", "clear", "Clear history"), ("ctrl+q", "quit", "Quit")]
 
     def __init__(self):
         super().__init__()
         self.messages = []        # the whole memory of the conversation, as in chat.py
         self.last_stats = None    # numbers of the last answered request
         self.was_cut = False      # has the server already dropped part of this chat?
+        self.confidence = False   # colour each answer token by its probability (F2)
 
     def compose(self) -> ComposeResult:
         with Horizontal():
@@ -93,10 +110,13 @@ class Dashboard(App):
         ui = self.call_from_thread
         thinking_widget = answer_widget = None
         thinking = answer = ""
+        tokens = []  # answer tokens with their probabilities (confidence on)
         sent_at = time.perf_counter()
         first_at = None
+        top = 20 if self.confidence else 0
         try:
-            for kind, data in stream_chat(self.messages, config.CONTEXT_SIZE, config.THINKING):
+            for kind, data in stream_chat(self.messages, config.CONTEXT_SIZE, config.THINKING,
+                                          top_logprobs=top):
                 if kind != "done" and first_at is None:
                     first_at = time.perf_counter()
                 if kind == "thinking":
@@ -108,8 +128,12 @@ class Dashboard(App):
                     answer += data
                     if answer_widget is None:
                         answer_widget = ui(self.say, "", "answer")
-                    ui(answer_widget.update, Text(answer))
+                    if not top:  # with confidence on, "tokens" right after draws it
+                        ui(answer_widget.update, Text(answer))
                     ui(self.query_one("#chat").scroll_end, animate=False)
+                elif kind == "tokens":
+                    tokens += data
+                    ui(answer_widget.update, coloured(tokens))
                 else:
                     numbers = timings(data)
         except OSError as error:  # server not reachable, model missing...
@@ -127,10 +151,10 @@ class Dashboard(App):
         self.was_cut = self.was_cut or warning is not None
         warning = warning or context_warning(stats, config.CONTEXT_SIZE)
         self.last_stats = stats
-        ui(self.show_turn, stats, numbers, warning)
+        ui(self.show_turn, stats, numbers, warning, tokens)
         ui(self.ready)
 
-    def show_turn(self, stats, numbers, warning):
+    def show_turn(self, stats, numbers, warning, tokens):
         speed = stats.wrote / stats.writing_s if stats.writing_s else 0
         used = stats.read + stats.wrote
         lines = [
@@ -147,12 +171,28 @@ class Dashboard(App):
         ]
         if warning:
             lines += ["", warning]
-        self.query_one("#turn").update("\n".join(lines))
+        if tokens:
+            lines += ["", "least sure tokens:"]
+            for t in sorted(tokens, key=lambda t: t["p"])[:3]:
+                others = ", ".join(f"{a!r} {p:.0%}" for a, p in t["alternatives"][1:3]
+                                   if a != t["token"])
+                lines.append(f" {t['token']!r} {t['p']:.0%}  (also: {others})")
+        self.query_one("#turn").update(Text("\n".join(lines)))
 
     def ready(self):
         field = self.query_one(Input)
         field.disabled = False
         field.focus()
+
+    def action_toggle_confidence(self):
+        self.confidence = not self.confidence
+        if self.confidence:
+            legend = Text("(confidence colours on, from the next answer: ")
+            for lowest, label, _ in SCALE:
+                legend.append(f" {label} ", style=style(lowest + 0.001))
+            self.say(legend + Text(")"), "note")
+        else:
+            self.say("(confidence colours off)", "note")
 
     def action_clear(self):
         self.messages.clear()
