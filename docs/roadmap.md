@@ -11,8 +11,8 @@ Page file names follow these steps; for the order to read them in, see [README.m
 | 2 | Chat loop that keeps history (`chat.py`): the model has no memory | ✅ |
 | 3 | Make the internals visible: usage line, `/context`, overflow detection, traces | ✅ |
 | 4 | Core concepts, hands-on | ✅ |
-| **5** | **Tests and GitHub Actions** | in progress |
-| 6 | Terminal lab dashboard | |
+| 5 | Tests and GitHub Actions | ✅ |
+| **6** | **Terminal lab dashboard** | next |
 | 7 | Knowledge base: RAG and alternatives, measured | |
 | later | Tool calling; JavaScript visualisations for sharing | |
 
