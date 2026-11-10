@@ -11,7 +11,7 @@ Page file names follow these steps; for the order to read them in, see [README.m
 | 2 | Chat loop that keeps history (`chat.py`): the model has no memory | ✅ |
 | 3 | Make the internals visible: usage line, `/context`, overflow detection, traces | ✅ |
 | 4 | Core concepts, hands-on | ✅ |
-| **5** | **Tests and GitHub Actions** | next |
+| **5** | **Tests and GitHub Actions** | in progress |
 | 6 | Terminal lab dashboard | |
 | 7 | Knowledge base: RAG and alternatives, measured | |
 | later | Tool calling; JavaScript visualisations for sharing | |
@@ -51,8 +51,10 @@ One concept page plus a small experiment each, with numbers from this laptop:
 
 ## 5. Tests and GitHub Actions
 
-`pytest` tests for code that needs no model (settings parsing, traces), and a workflow
-that runs them on every push.
+`pytest` tests for code that needs no model (settings, stats, traces, chat template,
+sampling math, confidence colours), and a workflow that builds the app image and runs
+them on every push. [05-tests.md](05-tests.md), `tests/`,
+`.github/workflows/tests.yml`.
 
 ## 6. Terminal lab dashboard
 

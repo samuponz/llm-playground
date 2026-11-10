@@ -39,6 +39,11 @@ to learn from. Each concept page links to the experiments that back it.
 - [04e-quantization.md](04e-quantization.md): what `Q4_K_M` means, and what it costs in
   quality
 
+## 6. Keeping it working
+
+- [05-tests.md](05-tests.md): unit tests without a model, and GitHub Actions running
+  them on every push
+
 ## Reference
 
 - [experiments/](experiments/README.md): real runs, logged word for word and fact-checked

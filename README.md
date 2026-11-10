@@ -87,6 +87,16 @@ red = unsure), then lists the least sure tokens and what else the model consider
 Confidence is not correctness: a model can be sure and wrong. Each run is saved to
 `traces/`.
 
+## Run the tests
+
+```bash
+docker compose run --rm --no-deps app pytest
+```
+
+Tests for the code that needs no model (settings, stats, traces, chat template,
+sampling math). `--no-deps` skips starting Ollama. GitHub runs the same tests on every
+push. See [docs/05-tests.md](docs/05-tests.md).
+
 ## Useful commands
 
 | Command | What it does |

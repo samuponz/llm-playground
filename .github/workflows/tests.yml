@@ -1,0 +1,22 @@
+# Run the tests that need no model on every push and pull request.
+# Same command as on the laptop: build the app image, run pytest inside it.
+# Ollama is not started (--no-deps): these tests never call a model.
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the app image
+        run: docker compose build app
+
+      - name: Run pytest
+        # -T: no terminal on GitHub's machines. HOST_UID/GID: run as the runner's user,
+        # so files pytest writes into the checkout are not owned by root.
+        run: HOST_UID=$(id -u) HOST_GID=$(id -g) docker compose run --rm --no-deps -T app pytest
