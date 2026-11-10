@@ -92,6 +92,21 @@ the same mix: words copied from the question (the town) were green every time;
 invented specifics (a birth day, a goal count) were orange or red; but the central
 invention ("an Italian footballer") was ~100% sure.
 
+## With vs without context
+
+[Experiment 009](experiments/009-confidence-with-context.md): the same question at
+temperature 0, once alone and once after a short paragraph saying Leopardi was born in
+Recanati on 29 June 1798.
+
+| Fact token | Without context | With context |
+|---|---|---|
+| Birthplace | " Piet" (an invented "Pietrino") 37% 🟧 | " Rec" 67% 🟨, then "an", "ati" 100% |
+| Year, hundreds digit | "8" 62% 🟨 → 1813 ❌ | "7" 100% → 1798 ✅ |
+
+With the answer in the prompt the model copies it, and the colours go green. Without
+it, the model was wrong and still had no red token. Retrieval (step 7) is the job of
+getting that paragraph into the prompt.
+
 ## What the colours can and cannot tell you
 
 | Pattern | Meaning | Example |
@@ -119,8 +134,6 @@ calibrated.
 - **In the chat**: a `/confidence` toggle in `chat.py` to colour every answer, and `/why`
   to list the least sure tokens of the last answer. Later, the same colours in the
   step 6 dashboard.
-- **With vs without context**: paste a paragraph saying Leopardi was born in Recanati;
-  does "Sp" 🟥 become a green "Rec"? (prepares step 7)
 - **Calibration**: over many questions, how often is a wrong fact red, and how often
   green?
 - The saved runs in `traces/` hold every token with its alternatives: raw material for a
