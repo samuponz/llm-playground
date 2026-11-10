@@ -26,14 +26,14 @@ list. Usually the two go together; the examples below show when they don't.
 ## What the colours show, and what they don't
 
 The model writes one token at a time, each chosen from a probability list that depends
-on everything written so far (the prompt and its own earlier tokens). The colours show
-the **result** of each choice:
+on everything written so far (the prompt and its own earlier tokens). `confidence.py`
+shows the **result** of each choice:
 
-| The colours show | The colours don't show |
-|---|---|
-| **what** the model wrote | **why** that token won |
-| **how sure** it was (the chosen token's probability) | which earlier words it was looking at |
-| **what else** it considered (the top 20 of the list) | how the decision formed inside the model |
+| It shows | Where | It doesn't show |
+|---|---|---|
+| **what** the model wrote | the text | **why** that token won |
+| **how sure** it was (the chosen token's probability) | the colour | which earlier words it was looking at |
+| **what else** it considered (the top of the list) | the table after the answer, and every token's top 20 in the trace | how the decision formed inside the model |
 
 So the page answers "where was the model sure, and where was it guessing?". It can't
 answer "why did it write Recanati?": that needs looking inside the model (which earlier
