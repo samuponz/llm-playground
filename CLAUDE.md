@@ -51,6 +51,7 @@ I don't want to install project dependencies on the host. The host only has Dock
 
 - Python 3 in the `app` container, dependencies in `requirements.txt`. No virtual environment needed; the container is the isolated environment.
 - Talk to Ollama through its OpenAI-compatible endpoint using the `openai` Python package, not the native `ollama` library. This keeps the code portable to bigger machines or cloud models later.
+  - Deliberate exception: the step 6 dashboard (`dashboard.py`) uses Ollama's own API through `ollama_api.py`, because only that API sets the context size per request and returns exact timings. Keep the exception inside those two files.
 - Model name, base URL, context size and thinking on/off come from environment variables (via a `.env` file read by Compose) with sensible defaults. Never hard-code them in logic. Commit a `.env.example`, never the real `.env`.
 - Keep each tool in its own module under `tools/`, with a clear JSON schema and a short, precise description. Small models pick tools much more reliably when descriptions are explicit and parameters are few.
 - Use free APIs that need no key where possible (e.g. Open-Meteo for weather).
