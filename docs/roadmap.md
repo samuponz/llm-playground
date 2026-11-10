@@ -12,7 +12,7 @@ Page file names follow these steps; for the order to read them in, see [README.m
 | 3 | Make the internals visible: usage line, `/context`, overflow detection, traces | ✅ |
 | 4 | Core concepts, hands-on | ✅ |
 | 5 | Tests and GitHub Actions | ✅ |
-| **6** | **Terminal lab dashboard** | next |
+| **6** | **Terminal lab dashboard** (6a done) | in progress |
 | 7 | Knowledge base: RAG and alternatives, measured | |
 | later | Tool calling; JavaScript visualisations for sharing | |
 
@@ -62,8 +62,18 @@ A terminal interface (TUI) to chat while watching, live: GPU and CPU usage, memo
 GPU/CPU split, tokens, speed and the context window filling up. Controls to change the
 context size, temperature and thinking, and to edit the history, to see their effect.
 
-Open decisions: the TUI library; which controls need Ollama's own API (e.g. context size
-per request is not in the OpenAI-style API).
+Decisions (2026-11-10):
+- **Textual** for the interface: panels, an input box and live updates out of the box.
+- **Ollama's own API, for the dashboard only** ([`ollama_api.py`](../ollama_api.py)).
+  Checked: the OpenAI-style API ignores a per-request context size, the native one
+  applies it (and reloads the model). It also gives exact timings (load, read, write,
+  tokens reused from cache). Everything else stays on the OpenAI-style API.
+- The `app` container gets NVIDIA's monitoring access (`utility`, not compute) for GPU
+  usage and VRAM, in `docker-compose.gpu.yml`.
+
+Sub-steps: 6a skeleton (chat, last-turn numbers) · 6b machine panel (CPU, RAM, GPU,
+GPU/CPU split) · 6c controls (temperature, thinking, context size, confidence) ·
+6d history editing · 6e traces, tests, concept page.
 
 ## 7. Knowledge base: RAG and alternatives, measured
 

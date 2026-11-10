@@ -87,6 +87,16 @@ red = unsure), then lists the least sure tokens and what else the model consider
 Confidence is not correctness: a model can be sure and wrong. Each run is saved to
 `traces/`.
 
+## Lab dashboard (work in progress)
+
+```bash
+docker compose run --rm app python dashboard.py
+```
+
+A full-screen terminal version of the chat, with the numbers of each turn on the side:
+tokens read (and how many came from the cache), loading, reading and writing times,
+context fill. Enter sends, Ctrl+L clears the history, Ctrl+Q quits.
+
 ## Run the tests
 
 ```bash
