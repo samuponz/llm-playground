@@ -23,12 +23,22 @@ saved to `traces/`.
 **Confidence is not correctness.** The model has no access to the truth, only to its own
 list. Usually the two go together; the examples below show when they don't.
 
-## Why the whole answer, not just the first token
+## What the colours show, and what they don't
 
-The token that matters is rarely the first one. In "Giacomo Leopardi è nato nel 1798",
-the first tokens just repeat the question; the fact comes at position 10–13. And the
-model only reaches that point after choosing every earlier token, because each list
-depends on what is already written. So you have to look at every step.
+The model writes one token at a time, each chosen from a probability list that depends
+on everything written so far (the prompt and its own earlier tokens). The colours show
+the **result** of each choice:
+
+| The colours show | The colours don't show |
+|---|---|
+| **what** the model wrote | **why** that token won |
+| **how sure** it was (the chosen token's probability) | which earlier words it was looking at |
+| **what else** it considered (the top 20 of the list) | how the decision formed inside the model |
+
+So the page answers "where was the model sure, and where was it guessing?". It can't
+answer "why did it write Recanati?": that needs looking inside the model (which earlier
+tokens it attended to, layer by layer), and Ollama only returns the final list. Parked
+in [to-explore.md](to-explore.md).
 
 ## Reading the examples
 
@@ -131,7 +141,7 @@ calibrated.
 
 ## Ideas to continue
 
-- **In the chat**: a `/confidence` toggle in `chat.py` to colour every answer, and `/why`
+- **In the chat**: a `/confidence` toggle in `chat.py` to colour every answer, and `/unsure`
   to list the least sure tokens of the last answer. Later, the same colours in the
   step 6 dashboard.
 - **Calibration**: over many questions, how often is a wrong fact red, and how often

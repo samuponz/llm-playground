@@ -73,6 +73,26 @@ Each one is a candidate for its own doc page and visualisation.
   Claude's tokenizer is not public; only counts are available, via the API's
   `count_tokens` (needs a key).
 
+## Looking inside: why a token was chosen (step 4f)
+
+[04f](04f-confidence.md) shows *what* the model chose and how sure it was, not *why*.
+Seeing the why means looking inside the model, which Ollama doesn't expose (it only
+returns the final probability list). It needs running the model in Python with
+`transformers` (PyTorch, CPU, e.g. `Qwen3-0.6B` or `1.7B`): about 1 GB more in the app
+image plus a separate copy of the weights from Hugging Face.
+
+- **Attention map**: which earlier tokens the model looked at when it wrote a token.
+  When it wrote " Rec", did it look at "Recanati" in the pasted paragraph?
+- **Logit lens**: what the model would write if it stopped at layer 1, 2, … 28. At which
+  layer does "Recanati" win over other towns?
+- **Why it answers instead of echoing the question**: learned in fine-tuning
+  (question → answer examples). Also check whether Ollama applies a repetition penalty
+  through the OpenAI-style API.
+- Correcting a first mental model: the model is not linear (many layers with non-linear
+  steps), and its weights are not a fixed table of token-to-token relationships.
+  Attention decides, for each text, how much every earlier token matters now.
+- A strong candidate for a phase 2 visualisation.
+
 ## Parked from the Docker and Ollama deep dives (step 2)
 
 Already covered in [concepts/containers.md](concepts/containers.md),
