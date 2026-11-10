@@ -97,13 +97,7 @@ Confidence is not correctness: a model can be sure and wrong. Each run is saved 
 
 ## Learn more
 
+- [docs/README.md](docs/README.md): all concept pages, in reading order
 - [docs/roadmap.md](docs/roadmap.md): the plan, step by step
+- [docs/experiments/](docs/experiments/README.md): real runs, logged and fact-checked
 - [docs/cheatsheets/](docs/cheatsheets/README.md): tested terminal commands for Docker, Ollama, its HTTP API, the GPU and git
-- [docs/01-setup.md](docs/01-setup.md): what the containers do, and GPU vs CPU
-- [docs/02-chat-history.md](docs/02-chat-history.md): the model has no memory; the program resends the history
-- [docs/03-tokens-and-context.md](docs/03-tokens-and-context.md): tokens, the context window, reading vs writing speed
-- [docs/04a-tokens.md](docs/04a-tokens.md): what a token is, where the vocabulary comes from, why Italian costs more
-- [docs/traces.md](docs/traces.md): the format of recorded chat sessions
-- [docs/concepts/containers.md](docs/concepts/containers.md): how containers work (namespaces, cgroups, images)
-- [docs/concepts/ollama.md](docs/concepts/ollama.md): how Ollama works (server and clients, model files, local vs cloud, security)
-- [docs/experiments/](docs/experiments/README.md): real conversations, fact-checked: what models know and make up

@@ -2,6 +2,7 @@
 
 Each step ends with something that works, a commit, and a concept page in `docs/`.
 Side questions that come up go to [to-explore.md](to-explore.md).
+Page file names follow these steps; for the order to read them in, see [README.md](README.md).
 
 | Step | What | Status |
 |---|---|---|
