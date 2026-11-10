@@ -7,7 +7,7 @@ API
 
 ## Question
 
-Concept page [4e](../08-quantization.md) says: weights are bell-shaped with outliers,
+Concept page [4e](../04e-quantization.md) says: weights are bell-shaped with outliers,
 stored in blocks of 32 with one scale each, at about 4–5 bits. Is that what the real
 file contains? And what does going from 8 to 4 bits cost in size, speed and answers?
 
@@ -136,7 +136,7 @@ Both full answers are correct (Rayleigh scattering, short wavelengths scattered 
 - **Quantization changes the path, not the meaning.** Tiny rounding differences shift
   the probabilities a little; at temperature 0, once a different word wins, the whole
   continuation diverges (here after 17 words). Same mechanism as sampling
-  ([4d](../06-sampling.md)), but deterministic.
+  ([4d](../04d-sampling.md)), but deterministic.
 
 Open: why are the rows of `attn_q` so different in strength (row 834 is 0.25× the typical
 row)? Each row is one of 16 heads × 128 numbers; position encoding inside each head is

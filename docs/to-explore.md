@@ -9,7 +9,7 @@ Each one is a candidate for its own doc page and visualisation.
   `llama_kv_cache: size = 448.00 MiB`, almost a third of the model's memory.
 - Questions: what is stored in it? Why does it grow with context size, even when the
   conversation is short? What do `K (f16)` and `V (f16)` mean?
-- Answered in [07-kv-cache.md](07-kv-cache.md).
+- Answered in [04b-kv-cache.md](04b-kv-cache.md).
 
 ## Smarter KV cache eviction (step 4b)
 

@@ -1,6 +1,6 @@
 # 4f. Confidence across an answer
 
-For every token it writes, the model has a probability list ([4d](06-sampling.md)). The
+For every token it writes, the model has a probability list ([4d](04d-sampling.md)). The
 probability of the token it actually chose tells you **how sure the model was at that
 point**. Colour each token by it and you can watch confidence rise and fall along an
 answer, live.

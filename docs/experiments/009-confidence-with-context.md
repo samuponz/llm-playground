@@ -5,7 +5,7 @@ temperature 0 · **Interface:** `confidence.py` (OpenAI-style API with logprobs)
 
 ## Question
 
-In [4f](../09-confidence.md), asked where Leopardi was born, the small model wrote a
+In [4f](../04f-confidence.md), asked where Leopardi was born, the small model wrote a
 red " Sp" (Spoleto, wrong): it was guessing. If we paste a paragraph with the answer
 above the question, does the model copy it, and does the colour turn green?
 This is the idea behind step 7 (giving a model the right context).

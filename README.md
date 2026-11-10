@@ -61,7 +61,7 @@ docker compose run --rm app python tokens.py "Mi chiamo Samuele."
 
 Shows how a text is split into the tokens the model reads, with their IDs and counts.
 The first run downloads Qwen3's tokenizer (11 MB) into `models/`. See
-[docs/04-tokens.md](docs/04-tokens.md).
+[docs/04a-tokens.md](docs/04a-tokens.md).
 
 ## See the weights
 
@@ -73,7 +73,7 @@ docker compose run --rm app python weights.py blk.0.attn_q.weight --blocks   # +
 
 Reads the model file straight from Ollama's storage (mounted read-only) and shows how
 the weights are stored. For one matrix it prints statistics and saves a histogram and an
-image to `docs/images/`. See [docs/08-quantization.md](docs/08-quantization.md).
+image to `docs/images/`. See [docs/04e-quantization.md](docs/04e-quantization.md).
 
 ## See the model's confidence
 
@@ -102,7 +102,7 @@ Confidence is not correctness: a model can be sure and wrong. Each run is saved 
 - [docs/01-setup.md](docs/01-setup.md): what the containers do, and GPU vs CPU
 - [docs/02-chat-history.md](docs/02-chat-history.md): the model has no memory; the program resends the history
 - [docs/03-tokens-and-context.md](docs/03-tokens-and-context.md): tokens, the context window, reading vs writing speed
-- [docs/04-tokens.md](docs/04-tokens.md): what a token is, where the vocabulary comes from, why Italian costs more
+- [docs/04a-tokens.md](docs/04a-tokens.md): what a token is, where the vocabulary comes from, why Italian costs more
 - [docs/traces.md](docs/traces.md): the format of recorded chat sessions
 - [docs/concepts/containers.md](docs/concepts/containers.md): how containers work (namespaces, cgroups, images)
 - [docs/concepts/ollama.md](docs/concepts/ollama.md): how Ollama works (server and clients, model files, local vs cloud, security)

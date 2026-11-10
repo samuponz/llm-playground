@@ -5,7 +5,7 @@ thinking off · **Interface:** OpenAI-style API, one system + one user message p
 
 ## Question
 
-The system message is just the first block of text ([05](../05-chat-templates.md)). How
+The system message is just the first block of text ([05](../04c-chat-templates.md)). How
 well do small models follow it: for style, for a persona, for a rule? What happens when
 the user asks for the opposite?
 

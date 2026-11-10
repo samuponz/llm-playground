@@ -29,22 +29,22 @@ Side questions that come up go to [to-explore.md](to-explore.md).
 One concept page plus a small experiment each, with numbers from this laptop:
 
 - ✅ **Tokens and the tokenizer**: what a token is, why "Leopardi" costs more than "Sam".
-  [04-tokens.md](04-tokens.md), [experiment 003](experiments/003-what-text-costs.md),
+  [04a-tokens.md](04a-tokens.md), [experiment 003](experiments/003-what-text-costs.md),
   `tokens.py`.
 - ✅ **KV cache**: what it stores, why context size costs memory, why it pushes layers off
-  the GPU. [07-kv-cache.md](07-kv-cache.md), [experiment 007](experiments/007-kv-cache-size.md).
+  the GPU. [04b-kv-cache.md](04b-kv-cache.md), [experiment 007](experiments/007-kv-cache-size.md).
 - ✅ **Chat templates**: how a list of messages becomes one text with special tokens.
-  [05-chat-templates.md](05-chat-templates.md),
+  [04c-chat-templates.md](04c-chat-templates.md),
   [experiment 004](experiments/004-chat-template-check.md), `template.py`.
 - ✅ **Sampling**: temperature, top-k, top-p: why the same question gives different answers.
-  [06-sampling.md](06-sampling.md), [experiment 006](experiments/006-temperature-spread.md),
+  [04d-sampling.md](04d-sampling.md), [experiment 006](experiments/006-temperature-spread.md),
   `sampling.py`.
 - ✅ **Quantization**: what `Q4_K_M` means and what it costs in quality.
-  [08-quantization.md](08-quantization.md), [experiment 008](experiments/008-quantization.md),
+  [04e-quantization.md](04e-quantization.md), [experiment 008](experiments/008-quantization.md),
   `weights.py`.
 - ✅ **Confidence across an answer** (4f): the probability of every token, live,
   coloured green (sure) to red (unsure). Fact vs wording, and with vs without context
-  (prepares step 7). [09-confidence.md](09-confidence.md),
+  (prepares step 7). [04f-confidence.md](04f-confidence.md),
   [experiment 009](experiments/009-confidence-with-context.md), `confidence.py`.
   Still open, listed on the page: chat integration (step 6) and calibration.
 

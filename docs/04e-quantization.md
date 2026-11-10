@@ -111,7 +111,7 @@ the model clearly uses some outputs more than others.
   largely stays.
 - **Outliers are not noise.** A few specific dimensions carry consistently large values
   in every layer; the model uses them for special jobs (linked to the
-  [attention sinks](07-kv-cache.md#why-keep-the-first-4-tokens-attention-sinks)).
+  [attention sinks](04b-kv-cache.md#why-keep-the-first-4-tokens-attention-sinks)).
   Crush them and quality collapses, so good formats protect them.
 - Not everything is a bell: normalisation weights (a "volume knob" per dimension) sit
   around 1. They are few, and usually kept at full precision.
@@ -196,7 +196,7 @@ range is only known while the model runs.
 
 ## Two quantizations: weights and KV cache
 
-| | Weights (`Q4_K_M`) | KV cache (`q8_0`, [4b](07-kv-cache.md)) |
+| | Weights (`Q4_K_M`) | KV cache (`q8_0`, [4b](04b-kv-cache.md)) |
 |---|---|---|
 | What | the model's fixed knowledge | the notes on the current conversation |
 | Chosen | when the file is made (in the model's tag) | when the server starts (`.env`) |

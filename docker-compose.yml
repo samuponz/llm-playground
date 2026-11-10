@@ -17,7 +17,7 @@ services:
     environment:
       # The OpenAI-style API has no "context size" option, so it is set on the server
       OLLAMA_CONTEXT_LENGTH: ${LLM_CONTEXT_SIZE:-4096}
-      # KV cache settings (see docs/07-kv-cache.md). Defaults = 16-bit cache, no flash attention.
+      # KV cache settings (see docs/04b-kv-cache.md). Defaults = 16-bit cache, no flash attention.
       # q8_0 halves the cache, but only works with flash attention on.
       OLLAMA_FLASH_ATTENTION: ${OLLAMA_FLASH_ATTENTION:-false}
       OLLAMA_KV_CACHE_TYPE: ${OLLAMA_KV_CACHE_TYPE:-f16}

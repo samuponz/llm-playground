@@ -5,7 +5,7 @@ thinking off · **Interface:** OpenAI-style API, one user message per request
 
 ## Question
 
-Sampling draws a token at random, weighted by the model's probability list ([4d](../06-sampling.md)).
+Sampling draws a token at random, weighted by the model's probability list ([4d](../04d-sampling.md)).
 Temperature reshapes that list before the draw. So: ask the *same* question many times at
 different temperatures — how many *different* answers come out? And does it depend on the
 question?

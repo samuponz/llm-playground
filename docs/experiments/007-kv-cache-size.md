@@ -5,7 +5,7 @@ thinking off · **Interface:** `ollama run --verbose` inside the container
 
 ## Question
 
-The KV cache formula ([4b](../07-kv-cache.md)) predicts its size from the model's shape
+The KV cache formula ([4b](../04b-kv-cache.md)) predicts its size from the model's shape
 and the context size. Is it exact? And what does a bigger or smaller cache do to the
 GPU/CPU split and to speed on a 2 GB GPU?
 
